@@ -1,0 +1,13 @@
+# build system
+bin
+
+# IDEs
+.settings
+/.exploded/
+
+/classes
+/modules
+
+# backup files
+*~
+\#*
