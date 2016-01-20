@@ -8,6 +8,10 @@ bin
 /classes
 /modules
 
+# specifications
+/index.html
+/spec.md
+
 # backup files
 *~
 \#*
