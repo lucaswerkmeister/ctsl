@@ -10,7 +10,12 @@ RightHandSideElement? parseGrhsAnnot(Grammar grammar, String annot) {
         Nonterminal|[[Terminal+]+] excluded;
         if (annot.startsWith("lookahead &ne; ")) {
             // lookahead &ne; x
-            excluded = [[grammar.terminal(annot["lookahead &ne; ".size...].trimTrailing(' '.equals))]];
+            variable value text = annot["lookahead &ne; ".size...].trimTrailing(' '.equals);
+            if (text == "&lt;LF&gt;") {
+                // special case for LineTerminatorSequence
+                text = "\{LINE FEED (LF)}";
+            }
+            excluded = [[grammar.terminal(text)]];
         } else if (annot.startsWith("lookahead &notin; {"),
             // lookahead &notin; { <code class="t">x</code>, <code class="t">y z</code> }
             annot.endsWith("}")) {
