@@ -1,7 +1,9 @@
 import ceylon.file {
     lines,
     parsePath,
-    File
+    File,
+    Nil,
+    Writer
 }
 
 shared void run() {
@@ -13,4 +15,16 @@ shared void run() {
     assert (is File typeScriptSpec = parsePath("spec.md").resource);
     value [grammar1, grammar2, grammar3] = readECMAScriptGrammar(lines(ecmaScriptSpec));
     readTypeScriptGrammar(lines(typeScriptSpec), grammar1);
+    Writer writer;
+    switch (resource = parsePath("source/de/lucaswerkmeister/ctsl/parser/lexer.ceylon").resource)
+    case (is Nil) {
+        writer = resource.createFile().Overwriter();
+    }
+    case (is File) {
+        writer = resource.Overwriter();
+    }
+    else {
+        throw AssertionError("lexer file must either not exist or be a regular file");
+    }
+    writeLexer(grammar2, writer);
 }

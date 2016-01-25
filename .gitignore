@@ -12,6 +12,9 @@ bin
 /index.html
 /spec.md
 
+# generated
+/source/de/lucaswerkmeister/ctsl/parser/lexer.ceylon
+
 # backup files
 *~
 \#*
