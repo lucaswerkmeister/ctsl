@@ -112,13 +112,19 @@ void writeLexer(Grammar grammar, Writer writer) {
                                         ValueDefinition {
                                             name = lidentifier(name);
                                             type = regularType;
-                                            value definition {
-                                                variable Primary expr = baseExpression(name + "_0");
-                                                for (i in 1 : usedRhss.size-1) {
-                                                    expr = invocation { qualifiedExpression(expr, "or"); baseExpression(name + "_" + i.string) };
-                                                }
-                                                return Specifier(expr);
-                                            }
+                                            definition = Specifier(invocation {
+                                                    invoked = "lazy";
+                                                    FunctionExpression {
+                                                        parameterLists = [Parameters()];
+                                                        value definition {
+                                                            variable Primary expr = baseExpression(name + "_0");
+                                                            for (i in 1 : usedRhss.size-1) {
+                                                                expr = invocation { qualifiedExpression(expr, "or"); baseExpression(name + "_" + i.string) };
+                                                            }
+                                                            return LazySpecifier(expr);
+                                                        }
+                                                    }
+                                                });
                                             annotations = sharedAnnotations;
                                         }
                                     },
