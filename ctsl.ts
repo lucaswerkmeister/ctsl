@@ -5,11 +5,11 @@
 
 import * as fs from "fs";
 
-const program : ts.Program = ts.createProgram(["DefinitelyTyped/acc-wizard/acc-wizard.d.ts"], {});
+const program : ts.Program = ts.createProgram(["simple.ts"], {});
 const sourceFiles : ts.SourceFile[] = program.getSourceFiles();
 const sourceFile : ts.SourceFile = sourceFiles[sourceFiles.length - 1];
 const checker : ts.TypeChecker = program.getTypeChecker();
-const fd : number = fs.openSync("acc-wizard.ceylon", "w");
+const fd : number = fs.openSync("simple.ceylon", "w");
 
 function write(text: string = ""): void {
     (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
@@ -99,8 +99,10 @@ function emitType(type: ts.TypeNode): void {
 }
 
 function emitSignature(decl: ts.SignatureDeclaration): void {
-    emitType(decl.type);
-    emitName(decl.name);
+    if (decl.type)
+        emitType(decl.type);
+    if (decl.name)
+        emitName(decl.name);
     // TODO type parameters
     write("(");
     let needComma: boolean = false
@@ -129,19 +131,41 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeLine("}");
         break;
     }
-    case (ts.SyntaxKind.PropertySignature): {
-        const pdecl = <ts.PropertySignature>decl;
+    case (ts.SyntaxKind.ClassDeclaration): {
+        const cdecl = <ts.ClassDeclaration>decl;
+        write("shared class");
+        emitName(cdecl.name);
+        writeLine("{");
+        for (const memberName in cdecl.members) {
+            const member = cdecl.members[memberName];
+            if (typeof member === "number") continue; // pos, end; TODO what happens if members are actually called that?
+            emitDeclaration(member);
+        }
+        writeLine("}");
+        break;
+    }
+    case (ts.SyntaxKind.PropertySignature):
+    case (ts.SyntaxKind.PropertyDeclaration): {
+        const pdecl = <ts.PropertySignature|ts.PropertyDeclaration>decl;
         write("shared formal ");
         emitType(pdecl.type);
         emitName(pdecl.name);
         writeLine(";");
         break;
     }
-    case (ts.SyntaxKind.MethodSignature): {
-        const mdecl = <ts.MethodSignature>decl;
+    case (ts.SyntaxKind.MethodSignature):
+    case (ts.SyntaxKind.MethodDeclaration): {
+        const mdecl = <ts.MethodSignature|ts.MethodDeclaration>decl;
         write("shared formal ");
         emitSignature(mdecl);
         writeLine(";");
+        break;
+    }
+    case (ts.SyntaxKind.Constructor): {
+        const cdecl = <ts.ConstructorDeclaration>decl;
+        write("shared new ");
+        emitSignature(cdecl);
+        writeLine("{}");
         break;
     }
     default: {
