@@ -5,11 +5,11 @@
 
 import * as fs from "fs";
 
-let program : ts.Program = ts.createProgram(["DefinitelyTyped/acc-wizard/acc-wizard.d.ts"], {});
-let sourceFiles : ts.SourceFile[] = program.getSourceFiles();
-let sourceFile : ts.SourceFile = sourceFiles[sourceFiles.length - 1];
-let checker : ts.TypeChecker = program.getTypeChecker();
-let fd : number = fs.openSync("acc-wizard.ceylon", "w");
+const program : ts.Program = ts.createProgram(["DefinitelyTyped/acc-wizard/acc-wizard.d.ts"], {});
+const sourceFiles : ts.SourceFile[] = program.getSourceFiles();
+const sourceFile : ts.SourceFile = sourceFiles[sourceFiles.length - 1];
+const checker : ts.TypeChecker = program.getTypeChecker();
+const fd : number = fs.openSync("acc-wizard.ceylon", "w");
 
 function write(text: string = ""): void {
     (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
@@ -32,7 +32,7 @@ function emitName(name: ts.EntityName | ts.DeclarationName): void {
         break;
     }
     case (ts.SyntaxKind.QualifiedName): {
-        let qn = <ts.QualifiedName>name;
+        const qn = <ts.QualifiedName>name;
         emitName(qn.left);
         write(".");
         emitName(qn.right);
@@ -70,18 +70,18 @@ function emitType(type: ts.TypeNode): void {
         break;
     }
     case (ts.SyntaxKind.TypeReference): {
-        let tr = <ts.TypeReferenceNode>type;
+        const tr = <ts.TypeReferenceNode>type;
         if ((<ts.Identifier>tr.typeName).text === "Function") {
             // special case: global Function type for any function
             write("Nothing(Anything*)");
             break;
         }
         emitName(tr.typeName);
-        let tas = tr.typeArguments;
+        const tas = tr.typeArguments;
         if (tas) {
             write("<");
             let needComma: boolean = false;
-            for (let ta of tas) {
+            for (const ta of tas) {
                 if (needComma) write(",");
                 emitType(ta);
                 needComma = true;
@@ -104,7 +104,7 @@ function emitSignature(decl: ts.SignatureDeclaration): void {
     // TODO type parameters
     write("(");
     let needComma: boolean = false
-    for (let parameter of decl.parameters) {
+    for (const parameter of decl.parameters) {
         if (needComma) write(", ");
         emitType(parameter.type);
         emitName(parameter.name);
@@ -117,12 +117,12 @@ function emitSignature(decl: ts.SignatureDeclaration): void {
 function emitDeclaration(decl: ts.Declaration): void {
     switch (decl.kind) {
     case (ts.SyntaxKind.InterfaceDeclaration): {
-        let idecl = <ts.InterfaceDeclaration>decl;
+        const idecl = <ts.InterfaceDeclaration>decl;
         write("shared dynamic");
         emitName(idecl.name);
         writeLine("{");
-        for (let memberName in idecl.members) {
-            let member = idecl.members[memberName];
+        for (const memberName in idecl.members) {
+            const member = idecl.members[memberName];
             if (typeof member === "number") continue; // pos, end; TODO what happens if members are actually called that?
             emitDeclaration(member);
         }
@@ -130,7 +130,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         break;
     }
     case (ts.SyntaxKind.PropertySignature): {
-        let pdecl = <ts.PropertySignature>decl;
+        const pdecl = <ts.PropertySignature>decl;
         write("shared formal ");
         emitType(pdecl.type);
         emitName(pdecl.name);
@@ -138,7 +138,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         break;
     }
     case (ts.SyntaxKind.MethodSignature): {
-        let mdecl = <ts.MethodSignature>decl;
+        const mdecl = <ts.MethodSignature>decl;
         write("shared formal ");
         emitSignature(mdecl);
         writeLine(";");
@@ -150,7 +150,7 @@ function emitDeclaration(decl: ts.Declaration): void {
     }
 }
 
-for (let declName in sourceFile.locals) {
-    let decl = sourceFile.locals[declName];
+for (const declName in sourceFile.locals) {
+    const decl = sourceFile.locals[declName];
     emitDeclaration(decl.declarations[0]);
 }
