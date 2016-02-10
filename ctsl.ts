@@ -5,12 +5,12 @@
 
 import * as fs from "fs";
 
-const program : ts.Program = ts.createProgram(["simple.ts"], {});
+const program : ts.Program = ts.createProgram(["source/simple/simple.ts"], {});
 const sourceFiles : ts.SourceFile[] = program.getSourceFiles();
 const sourceFile : ts.SourceFile = sourceFiles[sourceFiles.length - 1];
 const checker : ts.TypeChecker = program.getTypeChecker();
-const fd_ceylon : number = fs.openSync("simple.ceylon", "w");
-const fd_js : number = fs.openSync("simple.js", "w");
+const fd_ceylon : number = fs.openSync("source/simple/simple.ceylon", "w");
+const fd_js : number = fs.openSync("modules/simple/1.0.0/simple-1.0.0.js", "w");
 
 function write(fd: number, text: string): void {
     (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
