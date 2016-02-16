@@ -5,12 +5,14 @@
 
 import * as fs from "fs";
 
-const program : ts.Program = ts.createProgram(["source/simple/simple.ts"], {});
+const modname : string = "simple";
+const modver : string = "1.0.0";
+const program : ts.Program = ts.createProgram([`source/${modname}/${modname}.ts`], {});
 const sourceFiles : ts.SourceFile[] = program.getSourceFiles();
 const sourceFile : ts.SourceFile = sourceFiles[sourceFiles.length - 1];
 const checker : ts.TypeChecker = program.getTypeChecker();
-const fd_ceylon : number = fs.openSync("source/simple/simple.ceylon", "w");
-const fd_js : number = fs.openSync("modules/simple/1.0.0/simple-1.0.0.js", "w");
+const fd_ceylon : number = fs.openSync(`source/${modname}/${modname}.ceylon`, "w");
+const fd_js : number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}.js`, "w");
 
 function write(fd: number, text: string): void {
     (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
@@ -192,6 +194,29 @@ for (const declName in sourceFile.locals) {
     emitDeclaration(decl.declarations[0]);
 }
 
+writeJs(`(function(define) { define(function(require, ex$, module) {
+
+var _CTM$;function $CCMM$(){if (_CTM$===undefined)_CTM$=require('${modname}/${modver}/${modname}-${modver}-model').$CCMM$;return _CTM$;}
+ex$.$CCMM$=$CCMM$;
+var m$1=require('ceylon/language/1.2.1/ceylon.language-1.2.1');
+m$1.$addmod$(m$1,'ceylon.language/1.2.1');
+m$1.$addmod$(ex$,'${modname}/${modver}');
+ex$.$mod$ans$=[];
+ex$.$pkg$ans$${modname}=function(){return[m$1.shared()];};
+`);
+
 program.emit(sourceFile, function(fileName: string, data: string, writeByteOrderMark: boolean, onError: (message: string) => void): void {
     writeJs(data);
 });
+
+for (const declName in sourceFile.locals) {
+    // TODO only declarations that actually appear in source code! not interfaces!
+    writeJs(`ex$.${declName}=${declName};\n`);
+}
+
+writeJs(`});
+}(typeof define==='function' && define.amd ? define : function (factory) {
+if (typeof exports!=='undefined') { factory(require, exports, module);
+} else { throw 'no module loader'; }
+}));
+`);
