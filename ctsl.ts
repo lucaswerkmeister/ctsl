@@ -176,6 +176,13 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeCeylonLine(";");
         break;
     }
+    case (ts.SyntaxKind.FunctionDeclaration): {
+        const fdecl = <ts.FunctionDeclaration>decl;
+        writeCeylon("shared ");
+        emitSignature(fdecl);
+        writeCeylonLine("=> nothing;");
+        break;
+    }
     case (ts.SyntaxKind.Constructor): {
         const cdecl = <ts.ConstructorDeclaration>decl;
         writeCeylon("shared new ");
