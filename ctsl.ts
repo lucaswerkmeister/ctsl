@@ -65,14 +65,14 @@ function emitDeclaration(decl: ts.Declaration): void {
 }
 
 writeModel(`(function(define) { define(function(require, ex$, module) {
-ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/1.2.1"],"$mod-bin":"9.0",${modname}:{"$pkg-pa":1`);
+ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/1.2.1"],${modname}:{"$pkg-pa":1`);
 
 for (const declName in sourceFile.locals) {
     const decl = sourceFile.locals[declName];
     emitDeclaration(decl.declarations[0]);
 }
 
-writeModel(`},"$mod-name":"${modname}"};
+writeModel(`},"$mod-bin":"9.0","$mod-name":"${modname}"};
 });
 }(typeof define==='function' && define.amd ? define : function (factory) {
 if (typeof exports!=='undefined') { factory(require, exports, module);
