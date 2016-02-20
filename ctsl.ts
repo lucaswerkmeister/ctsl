@@ -47,6 +47,21 @@ function emitType(type: ts.TypeNode): void {
     }
 }
 
+function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>): void {
+    if (params.length > 0) {
+        writeModel(",ps:[[");
+        let comma: boolean = false;
+        for (let param of params) {
+            if (comma) writeModel(",");
+            comma = true;
+            writeModel("{$t:");
+            emitType(param.type);
+            writeModel(`,mt:"prm",nm:"${(<ts.Identifier>param.name).text}"}`);
+        }
+        writeModel("]]");
+    }
+}
+
 function emitDeclaration(decl: ts.Declaration): void {
     switch (decl.kind) {
     case (ts.SyntaxKind.FunctionDeclaration): {
@@ -54,7 +69,9 @@ function emitDeclaration(decl: ts.Declaration): void {
         const name = fdecl.name.text;
         writeModel(`,${name}:{$t:`);
         emitType(fdecl.type);
-        writeModel(`,pa:1,mt:"m",nm:"${name}"}`);
+        writeModel(",pa:1");
+        emitParameters(fdecl.parameters);
+        writeModel(`,mt:"m",nm:"${name}"}`);
         break;
     }
     default: {
