@@ -1,3 +1,3 @@
-function greeting(): string {
-    return "Hello from TypeScript!";
+function greeting(name: string): string {
+    return `Hello, ${name}, from TypeScript!`;
 }

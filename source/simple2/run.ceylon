@@ -1,3 +1,3 @@
 import simple { ... }
 
-shared void run() => print(greeting());
+shared void run() => print(greeting("Lucas"));
