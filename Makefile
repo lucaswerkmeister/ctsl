@@ -31,7 +31,7 @@ $(MODULE_JSFILE) $(MODULE_MODELFILE): TypeScript/built/local/typescript.js $(CTS
 	printf "%s" "$$(sha1sum $^ | cut -d' ' -f1)" > $@
 
 test: $(MODULE_JSFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE) $(MODULE_MODELFILE).sha1
-	ceylon compile-js,run-js $(TESTMODULE_NAME)
+	ceylon compile-js,test-js $(TESTMODULE_NAME)
 
 clean:
 	$(RM) $(CTSL_JSFILE) $(MODULE_JSFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE) $(MODULE_MODELFILE).sha1

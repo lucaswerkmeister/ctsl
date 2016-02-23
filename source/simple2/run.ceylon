@@ -1,7 +1,22 @@
 import simple { ... }
+import ceylon.test { ... }
 
-shared void run() {
-    print(greeting("Lucas"));
-    print(twice(1));
-    print(twice(1.0));
+test
+shared void string() {
+    assertEquals {
+        expected = "Hello, Lucas, from TypeScript!";
+        actual = greeting("Lucas");
+    };
+}
+
+test
+shared void numbers() {
+    assertEquals {
+        expected = 2;
+        actual = twice(1);
+    };
+    assertEquals {
+        expected = 2.0;
+        actual = twice(1.0);
+    };
 }
