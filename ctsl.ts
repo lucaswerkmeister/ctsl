@@ -40,6 +40,10 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"String"}');
         break;
     }
+    case (ts.SyntaxKind.NumberKeyword): {
+        writeModel('{comp:"u",l:[{md:"$",pk:"$",nm:"Integer"},{md:"$",pk:"$",nm:"Float"}]}');
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
