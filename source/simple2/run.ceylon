@@ -10,6 +10,14 @@ shared void string() {
 }
 
 test
+shared void parameters() {
+    assertEquals {
+        expected = "foobar";
+        actual = concatenate("foo", "bar");
+    };
+}
+
+test
 shared void numbers() {
     assertEquals {
         expected = 2;

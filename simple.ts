@@ -4,3 +4,6 @@ function greeting(name: string): string {
 function twice(num: number): number {
     return 2 * num;
 }
+function concatenate(s1: string, s2: string): string {
+    return s1 + s2;
+}
