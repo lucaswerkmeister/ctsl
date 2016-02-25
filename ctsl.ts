@@ -5,7 +5,7 @@
 
 import * as fs from "fs";
 
-const langver : string = "1.2.1";
+const langver : string = "1.2.2";
 const modname : string = "simple";
 const modver : string = "1.0.0";
 const program : ts.Program = ts.createProgram([`${modname}.ts`], {});
