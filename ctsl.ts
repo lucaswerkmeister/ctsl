@@ -5,6 +5,7 @@
 
 import * as fs from "fs";
 
+const langver : string = "1.2.1";
 const modname : string = "simple";
 const modver : string = "1.0.0";
 const program : ts.Program = ts.createProgram([`${modname}.ts`], {});
@@ -86,7 +87,7 @@ function emitDeclaration(decl: ts.Declaration): void {
 }
 
 writeModel(`(function(define) { define(function(require, ex$, module) {
-ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/1.2.1"],${modname}:{"$pkg-pa":1`);
+ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
 
 for (const declName in sourceFile.locals) {
     const decl = sourceFile.locals[declName];
@@ -105,8 +106,8 @@ writeJs(`(function(define) { define(function(require, ex$, module) {
 
 var _CTM$;function $CCMM$(){if (_CTM$===undefined)_CTM$=require('${modname}/${modver}/${modname}-${modver}-model').$CCMM$;return _CTM$;}
 ex$.$CCMM$=$CCMM$;
-var m$1=require('ceylon/language/1.2.1/ceylon.language-1.2.1');
-m$1.$addmod$(m$1,'ceylon.language/1.2.1');
+var m$1=require('ceylon/language/${langver}/ceylon.language-${langver}');
+m$1.$addmod$(m$1,'ceylon.language/${langver}');
 m$1.$addmod$(ex$,'${modname}/${modver}');
 ex$.$mod$ans$=[];
 ex$.$pkg$ans$${modname}=function(){return[m$1.shared()];};
