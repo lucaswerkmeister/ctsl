@@ -69,6 +69,12 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
     }
 }
 
+function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration {
+    for (let member of cdecl.members)
+        if (member.kind === ts.SyntaxKind.Constructor)
+            return <ts.ConstructorDeclaration>member;
+}
+
 function emitDeclaration(decl: ts.Declaration): void {
     switch (decl.kind) {
     case (ts.SyntaxKind.FunctionDeclaration): {
@@ -80,6 +86,33 @@ function emitDeclaration(decl: ts.Declaration): void {
         emitParameters(fdecl.parameters, true);
         writeModel(`,mt:"m",nm:"${name}"}`);
         break;
+    }
+    case (ts.SyntaxKind.ClassDeclaration): {
+        const cdecl = <ts.ClassDeclaration>decl;
+        const name = cdecl.name.text;
+        writeModel(`${name}:{super:{md:"$",pk:"$",nm:"Basic"},pa:1`);
+        const constdecl = findConstructor(cdecl);
+        emitParameters(constdecl.parameters, false);
+        writeModel(`,mt:"c",$at:{`);
+        let comma: boolean = false;
+        for (const declName in cdecl.members) {
+            const decl = cdecl.members[declName];
+            if (decl.kind === ts.SyntaxKind.Constructor || decl.kind === undefined) continue;
+            if (comma) writeModel(",");
+            comma = true;
+            emitDeclaration(decl);
+        }
+        writeModel(`},nm:"${name}",$cn:{$def:{pa:1`);
+        emitParameters(constdecl.parameters, false);
+        writeModel("}}}");
+        break;
+    }
+    case (ts.SyntaxKind.PropertyDeclaration): {
+        const pdecl = <ts.PropertyDeclaration>decl;
+        const name = (<ts.Identifier>pdecl.name).text;
+        writeModel(`${name}:{$t:`);
+        emitType(pdecl.type);
+        writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
     }
     default: {
         error("unknown declaration kind " + decl.kind);
