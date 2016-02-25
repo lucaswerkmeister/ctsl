@@ -52,9 +52,10 @@ function emitType(type: ts.TypeNode): void {
     }
 }
 
-function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>): void {
+function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: boolean): void {
     if (params.length > 0) {
-        writeModel(",ps:[[");
+        writeModel(",ps:[");
+        if (mpl) writeModel("[");
         let comma: boolean = false;
         for (let param of params) {
             if (comma) writeModel(",");
@@ -63,7 +64,8 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>): void {
             emitType(param.type);
             writeModel(`,mt:"prm",nm:"${(<ts.Identifier>param.name).text}"}`);
         }
-        writeModel("]]");
+        if (mpl) writeModel("]");
+        writeModel("]");
     }
 }
 
@@ -75,7 +77,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`${name}:{$t:`);
         emitType(fdecl.type);
         writeModel(",pa:1");
-        emitParameters(fdecl.parameters);
+        emitParameters(fdecl.parameters, true);
         writeModel(`,mt:"m",nm:"${name}"}`);
         break;
     }
