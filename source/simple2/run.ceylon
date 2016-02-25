@@ -28,3 +28,16 @@ shared void numbers() {
         actual = twice(1.0);
     };
 }
+
+test
+ignore ("incorrect ABI")
+shared void klass() {
+    assertEquals {
+        expected = "Lucas";
+        actual = Person("Lucas", "Werkmeister").firstName;
+    };
+    assertEquals {
+        expected = "Werkmeister";
+        actual = Person { firstName = "Lucas"; lastName = "Werkmeister"; }.lastName;
+    };
+}

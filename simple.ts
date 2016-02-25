@@ -7,3 +7,11 @@ function twice(num: number): number {
 function concatenate(s1: string, s2: string): string {
     return s1 + s2;
 }
+class Person {
+    firstName: string;
+    lastName: string;
+    constructor(firstName: string, lastName: string) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+}
