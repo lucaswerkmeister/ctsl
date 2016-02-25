@@ -72,7 +72,7 @@ function emitDeclaration(decl: ts.Declaration): void {
     case (ts.SyntaxKind.FunctionDeclaration): {
         const fdecl = <ts.FunctionDeclaration>decl;
         const name = fdecl.name.text;
-        writeModel(`,${name}:{$t:`);
+        writeModel(`${name}:{$t:`);
         emitType(fdecl.type);
         writeModel(",pa:1");
         emitParameters(fdecl.parameters);
@@ -90,6 +90,7 @@ writeModel(`(function(define) { define(function(require, ex$, module) {
 ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
 
 for (const declName in sourceFile.locals) {
+    writeModel(",");
     const decl = sourceFile.locals[declName];
     emitDeclaration(decl.declarations[0]);
 }
