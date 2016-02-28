@@ -102,7 +102,7 @@ function emitDeclaration(decl: ts.Declaration): void {
             comma = true;
             emitDeclaration(decl);
         }
-        writeModel(`},nm:"${name}",$cn:{$def:{pa:1`);
+        writeModel(`},nm:"${name}",$cn:{$def:{pa:1,$new:true`);
         emitParameters(constdecl.parameters, false);
         writeModel("}}}");
         break;
