@@ -30,7 +30,6 @@ shared void numbers() {
 }
 
 test
-ignore ("incorrect ABI")
 shared void klass() {
     assertEquals {
         expected = "Lucas";
