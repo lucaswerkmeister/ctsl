@@ -113,6 +113,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`${name}:{$t:`);
         emitType(pdecl.type);
         writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
+        break;
     }
     default: {
         error("unknown declaration kind " + decl.kind);
