@@ -15,3 +15,6 @@ class Person {
         this.lastName = lastName;
     }
 }
+function makePerson(firstName: string, lastName: string): Person {
+    return new Person(firstName, lastName);
+}

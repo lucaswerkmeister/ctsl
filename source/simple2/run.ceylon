@@ -40,3 +40,25 @@ shared void klass() {
         actual = Person { firstName = "Lucas"; lastName = "Werkmeister"; }.lastName;
     };
 }
+
+test
+shared void classReference() {
+    assertEquals {
+        expected = "Lucas";
+        actual = makePerson("Lucas", "Werkmeister").firstName;
+    };
+    assertEquals {
+        expected = "Werkmeister";
+        actual = makePerson { firstName = "Lucas"; lastName = "Werkmeister"; }.lastName;
+    };
+    Person p1 = makePerson("Lucas", "Werkmeister");
+    assertEquals {
+        expected = "Lucas";
+        actual = p1.firstName;
+    };
+    Person p2 = makePerson { firstName = "Lucas"; lastName = "Werkmeister"; };
+    assertEquals {
+        expected = "Werkmeister";
+        actual = p2.lastName;
+    };
+}
