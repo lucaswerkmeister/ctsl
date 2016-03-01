@@ -45,6 +45,12 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{comp:"u",l:[{md:"$",pk:"$",nm:"Integer"},{md:"$",pk:"$",nm:"Float"}]}');
         break;
     }
+    case (ts.SyntaxKind.TypeReference): {
+        const ref = <ts.TypeReferenceNode>type;
+        // TODO deal with qualified names
+        writeModel(`{pk:".",nm:"${(<ts.Identifier>ref.typeName).text}"}`);
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
