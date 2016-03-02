@@ -62,3 +62,12 @@ shared void classReference() {
         actual = p2.lastName;
     };
 }
+
+test
+shared void intrface() {
+    Named named = makeNamed("Lucas Werkmeister");
+    assertEquals {
+        expected = "Lucas Werkmeister";
+        actual = named.name;
+    };
+}

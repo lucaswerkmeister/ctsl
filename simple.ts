@@ -7,6 +7,12 @@ function twice(num: number): number {
 function concatenate(s1: string, s2: string): string {
     return s1 + s2;
 }
+interface Named {
+    name: string;
+}
+function makeNamed(name: string): Named {
+    return { name: name };
+}
 class Person {
     firstName: string;
     lastName: string;
