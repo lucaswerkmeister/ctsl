@@ -113,12 +113,35 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel("}}}");
         break;
     }
+    case (ts.SyntaxKind.InterfaceDeclaration): {
+        const idecl = <ts.InterfaceDeclaration>decl;
+        const name = idecl.name.text;
+        writeModel(`${name}:{pa:1,mt:"i",$at:{`);
+        let comma: boolean = false;
+        for (const declName in idecl.members) {
+            const decl = idecl.members[declName];
+            if (decl.kind === undefined) continue;
+            if (comma) writeModel(",");
+            comma = true;
+            emitDeclaration(decl);
+        }
+        writeModel(`},nm:"${name}"}`);
+        break;
+    }
     case (ts.SyntaxKind.PropertyDeclaration): {
         const pdecl = <ts.PropertyDeclaration>decl;
         const name = (<ts.Identifier>pdecl.name).text;
         writeModel(`${name}:{$t:`);
         emitType(pdecl.type);
         writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
+        break;
+    }
+    case (ts.SyntaxKind.PropertySignature): {
+        const pdecl = <ts.PropertySignature>decl;
+        const name = (<ts.Identifier>pdecl.name).text;
+        writeModel(`${name}:{$t:`);
+        emitType(pdecl.type);
+        writeModel(`,pa:5,mt:"a",nm:"${name}"}`);
         break;
     }
     default: {
@@ -161,8 +184,22 @@ program.emit(sourceFile, function(fileName: string, data: string, writeByteOrder
 });
 
 for (const declName in sourceFile.locals) {
-    // TODO only declarations that actually appear in source code! not interfaces!
-    writeJs(`ex$.${declName}=${declName};\n`);
+    const decl = sourceFile.locals[declName].declarations[0];
+    switch (decl.kind) {
+    case (ts.SyntaxKind.FunctionDeclaration):
+    case (ts.SyntaxKind.ClassDeclaration): {
+        writeJsLine(`ex$.${declName}=${declName};`);
+        break;
+    }
+    case (ts.SyntaxKind.InterfaceDeclaration): {
+        // does not appear in source code
+        break;
+    }
+    default: {
+        error("unknown toplevel declaration kind " + decl.kind);
+        break;
+    }
+    }
 }
 
 writeJs(`});
