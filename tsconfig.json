@@ -5,7 +5,8 @@
         "noImplicitAny": true,
         "outDir": "built",
         "rootDir": ".",
-        "sourceMap": false
+        "sourceMap": false,
+        "pretty": true
     },
     "files": [
         "ctsl.ts"
