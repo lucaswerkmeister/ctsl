@@ -37,15 +37,15 @@ function error(line: string): void {
 
 function emitType(type: ts.TypeNode): void {
     switch (type.kind) {
-    case (ts.SyntaxKind.StringKeyword): {
+    case ts.SyntaxKind.StringKeyword: {
         writeModel('{md:"$",pk:"$",nm:"String"}');
         break;
     }
-    case (ts.SyntaxKind.NumberKeyword): {
+    case ts.SyntaxKind.NumberKeyword: {
         writeModel('{comp:"u",l:[{md:"$",pk:"$",nm:"Integer"},{md:"$",pk:"$",nm:"Float"}]}');
         break;
     }
-    case (ts.SyntaxKind.TypeReference): {
+    case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
         writeModel(`{pk:".",nm:"${(<ts.Identifier>ref.typeName).text}"}`);
@@ -83,7 +83,7 @@ function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration 
 
 function emitDeclaration(decl: ts.Declaration): void {
     switch (decl.kind) {
-    case (ts.SyntaxKind.FunctionDeclaration): {
+    case ts.SyntaxKind.FunctionDeclaration: {
         const fdecl = <ts.FunctionDeclaration>decl;
         const name = fdecl.name.text;
         writeModel(`${name}:{$t:`);
@@ -93,7 +93,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`,mt:"m",nm:"${name}"}`);
         break;
     }
-    case (ts.SyntaxKind.ClassDeclaration): {
+    case ts.SyntaxKind.ClassDeclaration: {
         const cdecl = <ts.ClassDeclaration>decl;
         const name = cdecl.name.text;
         writeModel(`${name}:{super:{md:"$",pk:"$",nm:"Basic"},pa:1`);
@@ -113,7 +113,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel("}}}");
         break;
     }
-    case (ts.SyntaxKind.InterfaceDeclaration): {
+    case ts.SyntaxKind.InterfaceDeclaration: {
         const idecl = <ts.InterfaceDeclaration>decl;
         const name = idecl.name.text;
         writeModel(`${name}:{pa:1,mt:"i",$at:{`);
@@ -128,7 +128,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`},nm:"${name}"}`);
         break;
     }
-    case (ts.SyntaxKind.PropertyDeclaration): {
+    case ts.SyntaxKind.PropertyDeclaration: {
         const pdecl = <ts.PropertyDeclaration>decl;
         const name = (<ts.Identifier>pdecl.name).text;
         writeModel(`${name}:{$t:`);
@@ -136,7 +136,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
         break;
     }
-    case (ts.SyntaxKind.PropertySignature): {
+    case ts.SyntaxKind.PropertySignature: {
         const pdecl = <ts.PropertySignature>decl;
         const name = (<ts.Identifier>pdecl.name).text;
         writeModel(`${name}:{$t:`);
@@ -186,12 +186,12 @@ program.emit(sourceFile, function(fileName: string, data: string, writeByteOrder
 for (const declName in sourceFile.locals) {
     const decl = sourceFile.locals[declName].declarations[0];
     switch (decl.kind) {
-    case (ts.SyntaxKind.FunctionDeclaration):
-    case (ts.SyntaxKind.ClassDeclaration): {
+    case ts.SyntaxKind.FunctionDeclaration:
+    case ts.SyntaxKind.ClassDeclaration: {
         writeJsLine(`ex$.${declName}=${declName};`);
         break;
     }
-    case (ts.SyntaxKind.InterfaceDeclaration): {
+    case ts.SyntaxKind.InterfaceDeclaration: {
         // does not appear in source code
         break;
     }
