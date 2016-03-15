@@ -75,6 +75,46 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
     }
 }
 
+function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
+    let superClass: string = null;
+    for (let clause of clauses || []) {
+        switch (clause.token) {
+        case ts.SyntaxKind.ExtendsKeyword: {
+            if (clause.types.length !== 1 || superClass !== null) {
+                error("multiple inheritance not yet supported");
+                continue;
+            }
+            let sup = clause.types[0];
+            if (sup.typeArguments) {
+                error("type arguments not yet supported");
+                continue;
+            }
+            switch (sup.expression.kind) {
+            case ts.SyntaxKind.Identifier: {
+                let ident = <ts.Identifier>sup.expression;
+                superClass = ident.text;
+                break;
+            }
+            default: {
+                error("unknown superclass expression kind " + sup.expression.kind);
+                break;
+            }
+            }
+            break;
+        }
+        default: {
+            error("unknown inheritance kind " + clause.token);
+            break;
+        }
+        }
+    }
+    if (superClass) {
+        writeModel(`,super:{pk:".",nm:${superClass}}`);
+    } else {
+        writeModel(',super:{md:"$",pk:"$",nm:"Basic"}');
+    }
+}
+
 function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration {
     for (let member of cdecl.members)
         if (member.kind === ts.SyntaxKind.Constructor)
@@ -96,7 +136,8 @@ function emitDeclaration(decl: ts.Declaration): void {
     case ts.SyntaxKind.ClassDeclaration: {
         const cdecl = <ts.ClassDeclaration>decl;
         const name = cdecl.name.text;
-        writeModel(`${name}:{super:{md:"$",pk:"$",nm:"Basic"},pa:1`);
+        writeModel(`${name}:{pa:1`);
+        emitHeritage(cdecl.heritageClauses);
         const constdecl = findConstructor(cdecl);
         emitParameters(constdecl.parameters, false);
         writeModel(`,mt:"c",$at:{`);
