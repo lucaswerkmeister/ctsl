@@ -71,3 +71,10 @@ shared void intrface() {
         actual = named.name;
     };
 }
+
+test
+shared void superclass() {
+    Person person = NoblePerson { title = "Grand Moff"; "Wilhuff"; "Tarkin"; };
+    assertEquals { expected = "Wilhuff"; actual = person.firstName; };
+    assertEquals { expected = "Tarkin"; actual = person.lastName; };
+}

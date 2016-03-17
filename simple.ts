@@ -24,3 +24,10 @@ class Person {
 function makePerson(firstName: string, lastName: string): Person {
     return new Person(firstName, lastName);
 }
+class NoblePerson extends Person {
+    title: string;
+    constructor(firstName: string, lastName: string, title: string) {
+        super(firstName, lastName);
+        this.title = title;
+    }
+}
