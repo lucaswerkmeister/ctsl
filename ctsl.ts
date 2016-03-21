@@ -77,6 +77,7 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
 
 function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
     let superClass: string = null;
+    let interfaces: Array<string> = [];
     for (let clause of clauses || []) {
         switch (clause.token) {
         case ts.SyntaxKind.ExtendsKeyword: {
@@ -102,6 +103,23 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
             }
             break;
         }
+        case ts.SyntaxKind.ImplementsKeyword: {
+            for (let type of clause.types) {
+                const expr = type.expression;
+                switch (expr.kind) {
+                case ts.SyntaxKind.Identifier: {
+                    let ident = <ts.Identifier>expr;
+                    interfaces.push(ident.text);
+                    break;
+                }
+                default: {
+                    error("unknown superinterface expression kind " + expr.kind);
+                    break;
+                }
+                }
+            }
+            break;
+        }
         default: {
             error("unknown inheritance kind " + clause.token);
             break;
@@ -112,6 +130,13 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
         writeModel(`,super:{pk:".",nm:${superClass}}`);
     } else {
         writeModel(',super:{md:"$",pk:"$",nm:"Basic"}');
+    }
+    if (interfaces.length > 0) {
+        writeModel(`,sts:[{pk:".",nm:"${interfaces[0]}"}`);
+        for (let i = 1; i < interfaces.length; i++) {
+            writeModel(`,{pk:".",nm:"${interfaces[i]}"}`);
+        }
+        writeModel(']');
     }
 }
 
