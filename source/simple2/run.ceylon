@@ -78,3 +78,11 @@ shared void superclass() {
     assertEquals { expected = "Wilhuff"; actual = person.firstName; };
     assertEquals { expected = "Tarkin"; actual = person.lastName; };
 }
+
+test
+shared void satisfiedInterface() {
+    Named named = Person("Lucas", "Werkmeister");
+    assertEquals { expected = "Lucas Werkmeister"; actual = named.name; };
+    Person person = Person("Lucas", "Werkmeister");
+    assertEquals { expected = "Lucas Werkmeister"; actual = person.name; };
+}

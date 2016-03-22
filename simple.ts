@@ -13,12 +13,14 @@ interface Named {
 function makeNamed(name: string): Named {
     return { name: name };
 }
-class Person {
+class Person implements Named {
     firstName: string;
     lastName: string;
+    name: string;
     constructor(firstName: string, lastName: string) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.name = firstName + ' ' + lastName;
     }
 }
 function makePerson(firstName: string, lastName: string): Person {
