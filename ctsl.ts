@@ -140,6 +140,22 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
     }
 }
 
+function emitTypeParameters(tparams?: ts.NodeArray<ts.TypeParameterDeclaration>): void {
+    if (tparams && tparams.length > 0) {
+        writeModel(",tp:[");
+        let comma: boolean = false;
+        for (let tparam of tparams) {
+            if (comma) writeModel(",");
+            comma = true;
+            if (tparam.constraint) {
+                error(`unsupported constraint for type parameter ${tparam.name.text}`);
+            }
+            writeModel(`{nm:"${tparam.name.text}"}`);
+        }
+        writeModel("]");
+    }
+}
+
 function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration {
     for (let member of cdecl.members)
         if (member.kind === ts.SyntaxKind.Constructor)
@@ -155,6 +171,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         emitType(fdecl.type);
         writeModel(",pa:1");
         emitParameters(fdecl.parameters, true);
+        emitTypeParameters(fdecl.typeParameters);
         writeModel(`,mt:"m",nm:"${name}"}`);
         break;
     }
