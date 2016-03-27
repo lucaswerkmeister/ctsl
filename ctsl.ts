@@ -147,10 +147,13 @@ function emitTypeParameters(tparams?: ts.NodeArray<ts.TypeParameterDeclaration>)
         for (let tparam of tparams) {
             if (comma) writeModel(",");
             comma = true;
+            writeModel("{");
             if (tparam.constraint) {
-                error(`unsupported constraint for type parameter ${tparam.name.text}`);
+                writeModel("sts:[");
+                emitType(tparam.constraint);
+                writeModel("],");
             }
-            writeModel(`{nm:"${tparam.name.text}"}`);
+            writeModel(`nm:"${tparam.name.text}"}`);
         }
         writeModel("]");
     }
