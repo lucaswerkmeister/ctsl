@@ -35,6 +35,19 @@ function error(line: string): void {
     write(2, `ctsl: ${line}\n`);
 }
 
+/*
+ * Heuristic that attempts to guess
+ * whether a type name refers to a real type or a type parameter.
+ * This is necessary because we don’t operate on a typechecked AST.
+ * It’s also obviously horrible,
+ * and the second iteration will definitely do this properly.
+ */
+function isTypeParameter(typeName: string): boolean {
+    // make this as hacky as needed for the first iteration
+    // for now: assume all type parameters are a single uppercase letter
+    return typeName.length === 1 && typeName.toUpperCase() === typeName;
+}
+
 function emitType(type: ts.TypeNode): void {
     switch (type.kind) {
     case ts.SyntaxKind.StringKeyword: {
@@ -48,7 +61,12 @@ function emitType(type: ts.TypeNode): void {
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
-        writeModel(`{pk:".",nm:"${(<ts.Identifier>ref.typeName).text}"}`);
+        const typeName: string = (<ts.Identifier>ref.typeName).text;
+        writeModel("{");
+        if (!isTypeParameter(typeName)) {
+            writeModel('pk:".",');
+        }
+        writeModel(`nm:"${typeName}"}`);
         break;
     }
     default: {
