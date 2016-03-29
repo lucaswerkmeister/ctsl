@@ -33,3 +33,6 @@ class NoblePerson extends Person {
         this.title = title;
     }
 }
+function id<V>(v: V): V {
+    return v;
+}

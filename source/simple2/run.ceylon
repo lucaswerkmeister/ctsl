@@ -86,3 +86,15 @@ shared void satisfiedInterface() {
     Person person = Person("Lucas", "Werkmeister");
     assertEquals { expected = "Lucas Werkmeister"; actual = person.name; };
 }
+
+test
+shared void functionTypeParameters() {
+    String string = id("Hello, World!");
+    Integer integer = id(42);
+    Person person = id(Person("Lucas", "Werkmeister"));
+    Named named = id<Named>(person);
+    assertEquals { expected = "Hello, World!"; actual = string; };
+    assertEquals { expected = 42; actual = integer; };
+    assertEquals { expected = "Lucas Werkmeister"; actual = person.name; };
+    assertEquals { expected = "Lucas Werkmeister"; actual = named.name; };
+}
