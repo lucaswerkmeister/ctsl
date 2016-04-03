@@ -98,3 +98,15 @@ shared void functionTypeParameters() {
     assertEquals { expected = "Lucas Werkmeister"; actual = person.name; };
     assertEquals { expected = "Lucas Werkmeister"; actual = named.name; };
 }
+
+test
+shared void classTypeParameters() {
+    NamedAttribute<String> stringAttribute = NamedAttribute("Lucas Werkmeister", "Hello, World!");
+    NamedAttribute<Integer> integerAttribute = NamedAttribute("Lucas Werkmeister", 42);
+    String string = stringAttribute.attribute;
+    Integer integer = integerAttribute.attribute;
+    assertEquals { expected = "Hello, World!"; actual = string; };
+    assertEquals { expected = 42; actual = integer; };
+    assertEquals { expected = "Lucas Werkmeister"; actual = stringAttribute.name; };
+    assertEquals { expected = "Lucas Werkmeister"; actual = integerAttribute.name; };
+}

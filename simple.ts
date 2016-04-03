@@ -36,3 +36,11 @@ class NoblePerson extends Person {
 function id<V>(v: V): V {
     return v;
 }
+class NamedAttribute<A> implements Named {
+    name: string;
+    attribute: A;
+    constructor(name: string, attribute: A) {
+        this.name = name;
+        this.attribute = attribute;
+    }
+}
