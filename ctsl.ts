@@ -5,17 +5,17 @@
 
 import * as fs from "fs";
 
-const langver : string = "1.2.3";
-const modname : string = "simple";
-const modver : string = "1.0.0";
-const options : ts.CompilerOptions = {};
-const host : ts.CompilerHost = ts.createCompilerHost(options);
-const program : ts.Program = ts.createProgram([`${modname}.ts`], options, host);
-const sourceFiles : ts.SourceFile[] = program.getSourceFiles();
-const sourceFile : ts.SourceFile = sourceFiles[sourceFiles.length - 1];
-const checker : ts.TypeChecker = program.getTypeChecker();
-const fd_js : number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}.js`, "w");
-const fd_model : number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}-model.js`, "w");
+const langver: string = "1.2.3";
+const modname: string = "simple";
+const modver: string = "1.0.0";
+const options: ts.CompilerOptions = {};
+const host: ts.CompilerHost = ts.createCompilerHost(options);
+const program: ts.Program = ts.createProgram([`${modname}.ts`], options, host);
+const sourceFiles: ts.SourceFile[] = program.getSourceFiles();
+const sourceFile: ts.SourceFile = sourceFiles[sourceFiles.length - 1];
+const checker: ts.TypeChecker = program.getTypeChecker();
+const fd_js: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}.js`, "w");
+const fd_model: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}-model.js`, "w");
 
 function write(fd: number, text: string): void {
     (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
