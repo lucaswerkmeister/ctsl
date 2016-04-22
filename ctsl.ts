@@ -236,6 +236,28 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`},nm:"${name}"}`);
         break;
     }
+    case ts.SyntaxKind.EnumDeclaration: {
+        const edecl = <ts.EnumDeclaration>decl;
+        const name = edecl.name.text;
+        writeModel(`${name}:{pa:1,super:{md:"$",pk:"$",nm:"Basic"},mt:"c",nm:"${name}",of:[`);
+        let comma: boolean = false;
+        for (const member of edecl.members) {
+            if (comma) writeModel(",");
+            comma = true;
+            const mname: string = (<ts.Identifier>member.name).text;
+            writeModel(`{pk:".",nm:"${name}.${mname}"}`);
+        }
+        writeModel("],$cn:{");
+        comma = false;
+        for (const member of edecl.members) {
+            if (comma) writeModel(",");
+            comma = true;
+            const mname: string = (<ts.Identifier>member.name).text;
+            writeModel(`${mname}:{pa:1,nm:"${mname}"}`);
+        }
+        writeModel(`}}`);
+        break;
+    }
     case ts.SyntaxKind.PropertyDeclaration: {
         const pdecl = <ts.PropertyDeclaration>decl;
         const name = (<ts.Identifier>pdecl.name).text;
