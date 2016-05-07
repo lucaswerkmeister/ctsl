@@ -110,3 +110,19 @@ shared void classTypeParameters() {
     assertEquals { expected = "Lucas Werkmeister"; actual = stringAttribute.name; };
     assertEquals { expected = "Lucas Werkmeister"; actual = integerAttribute.name; };
 }
+
+test
+shared void enum() {
+    PeopleKind peopleKind = PeopleKind.kind;
+    switch (peopleKind)
+    case (PeopleKind.kind) {
+        // ok
+    }
+    case (PeopleKind.rude) {
+        fail("Why you gotta be so rude :-(");
+    }
+    assertEquals {
+        expected = PeopleKind.kind;
+        actual = peopleKind;
+    };
+}

@@ -44,3 +44,7 @@ class NamedAttribute<A> implements Named {
         this.attribute = attribute;
     }
 }
+const enum PeopleKind {
+    kind = 1,
+    rude = 2
+}
