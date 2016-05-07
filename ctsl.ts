@@ -290,7 +290,7 @@ for (const declName in sourceFile.locals) {
     emitDeclaration(decl.declarations[0]);
 }
 
-writeModel(`},"$mod-bin":"9.0","$mod-name":"${modname}"};
+writeModel(`},"$mod-bin":"9.1","$mod-name":"${modname}"};
 });
 }(typeof define==='function' && define.amd ? define : function (factory) {
 if (typeof exports!=='undefined') { factory(require, exports, module);
@@ -323,6 +323,25 @@ for (const declName in sourceFile.locals) {
     }
     case ts.SyntaxKind.InterfaceDeclaration: {
         // does not appear in source code
+        break;
+    }
+    case ts.SyntaxKind.EnumDeclaration: {
+        const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
+        let value: number = 0;
+        for (const member of (<ts.EnumDeclaration>decl).members) {
+            const memberName: string = (<ts.Identifier>member.name).text;
+            if (isConst) {
+                const initializer: ts.Expression = member.initializer;
+                if (initializer) {
+                    value = parseInt((<ts.LiteralExpression>initializer).text);
+                } else {
+                    value++;
+                }
+                writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${value};}`);
+            } else {
+                writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${declName}.${memberName};}`);
+            }
+        }
         break;
     }
     default: {
