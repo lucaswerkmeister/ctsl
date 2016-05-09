@@ -187,9 +187,10 @@ function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration 
 
 function emitDeclaration(decl: ts.Declaration): void {
     switch (decl.kind) {
-    case ts.SyntaxKind.FunctionDeclaration: {
-        const fdecl = <ts.FunctionDeclaration>decl;
-        const name = fdecl.name.text;
+    case ts.SyntaxKind.FunctionDeclaration:
+    case ts.SyntaxKind.MethodDeclaration: {
+        const fdecl = <ts.FunctionDeclaration|ts.MethodDeclaration>decl;
+        const name = (<ts.Identifier>fdecl.name).text;
         writeModel(`${name}:{$t:`);
         emitType(fdecl.type);
         writeModel(",pa:1");
@@ -207,6 +208,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         emitParameters(constdecl.parameters, false);
         writeModel(`,mt:"c"`);
         const at: Array<ts.PropertyDeclaration> = [];
+        const m: Array<ts.MethodDeclaration> = [];
         for (const declName in cdecl.members) {
             const decl = cdecl.members[declName];
             switch (decl.kind) {
@@ -216,12 +218,25 @@ function emitDeclaration(decl: ts.Declaration): void {
             case ts.SyntaxKind.PropertyDeclaration:
                 at.push(<ts.PropertyDeclaration>decl);
                 break;
+            case ts.SyntaxKind.MethodDeclaration:
+                m.push(<ts.MethodDeclaration>decl);
+                break;
             }
         }
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
             for (const decl of at) {
+                if (comma) writeModel(",");
+                comma = true;
+                emitDeclaration(decl);
+            }
+            writeModel('}');
+        }
+        if (m.length > 0) {
+            writeModel(`,$m:{`);
+            let comma: boolean = false;
+            for (const decl of m) {
                 if (comma) writeModel(",");
                 comma = true;
                 emitDeclaration(decl);
