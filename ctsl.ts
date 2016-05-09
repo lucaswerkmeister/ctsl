@@ -205,16 +205,29 @@ function emitDeclaration(decl: ts.Declaration): void {
         emitHeritage(cdecl.heritageClauses);
         const constdecl = findConstructor(cdecl);
         emitParameters(constdecl.parameters, false);
-        writeModel(`,mt:"c",$at:{`);
-        let comma: boolean = false;
+        writeModel(`,mt:"c"`);
+        const at: Array<ts.PropertyDeclaration> = [];
         for (const declName in cdecl.members) {
             const decl = cdecl.members[declName];
-            if (decl.kind === ts.SyntaxKind.Constructor || decl.kind === undefined) continue;
-            if (comma) writeModel(",");
-            comma = true;
-            emitDeclaration(decl);
+            switch (decl.kind) {
+            case ts.SyntaxKind.Constructor:
+            case undefined:
+                continue;
+            case ts.SyntaxKind.PropertyDeclaration:
+                at.push(<ts.PropertyDeclaration>decl);
+                break;
+            }
         }
-        writeModel('}');
+        if (at.length > 0) {
+            writeModel(`,$at:{`);
+            let comma: boolean = false;
+            for (const decl of at) {
+                if (comma) writeModel(",");
+                comma = true;
+                emitDeclaration(decl);
+            }
+            writeModel('}');
+        }
         emitTypeParameters(cdecl.typeParameters);
         writeModel(`,nm:"${name}",$cn:{$def:{pa:1,$new:true`);
         emitParameters(constdecl.parameters, false);
