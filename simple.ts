@@ -22,6 +22,9 @@ class Person implements Named {
         this.lastName = lastName;
         this.name = firstName + ' ' + lastName;
     }
+    greet(other: Person): string {
+        return `Hello, ${other.name}! I am ${this.name}. How nice to meet you!`;
+    }
 }
 function makePerson(firstName: string, lastName: string): Person {
     return new Person(firstName, lastName);

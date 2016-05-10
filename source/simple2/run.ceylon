@@ -126,3 +126,13 @@ shared void enum() {
         actual = peopleKind;
     };
 }
+
+test
+shared void classMethod() {
+    value me = Person("Lucas", "Werkmeister");
+    value you = Person("Gavin", "King");
+    assertEquals {
+        expected = "Hello, Gavin King! I am Lucas Werkmeister. How nice to meet you!";
+        actual = me.greet(you);
+    };
+}
