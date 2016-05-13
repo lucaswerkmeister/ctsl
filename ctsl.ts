@@ -252,16 +252,29 @@ function emitDeclaration(decl: ts.Declaration): void {
     case ts.SyntaxKind.InterfaceDeclaration: {
         const idecl = <ts.InterfaceDeclaration>decl;
         const name = idecl.name.text;
-        writeModel(`${name}:{pa:1,mt:"i",$at:{`);
-        let comma: boolean = false;
+        writeModel(`${name}:{pa:1,mt:"i"`);
+        const at: Array<ts.PropertySignature> = [];
         for (const declName in idecl.members) {
             const decl = idecl.members[declName];
-            if (decl.kind === undefined) continue;
-            if (comma) writeModel(",");
-            comma = true;
-            emitDeclaration(decl);
+            switch (decl.kind) {
+            case undefined:
+                continue;
+            case ts.SyntaxKind.PropertySignature:
+                at.push(<ts.PropertySignature>decl);
+                break;
+            }
         }
-        writeModel(`},nm:"${name}"}`);
+        if (at.length > 0) {
+            writeModel(`,$at:{`);
+            let comma: boolean = false;
+            for (const decl of at) {
+                if (comma) writeModel(",");
+                comma = true;
+                emitDeclaration(decl);
+            }
+            writeModel('}');
+        }
+        writeModel(`,nm:"${name}"}`);
         break;
     }
     case ts.SyntaxKind.EnumDeclaration: {
