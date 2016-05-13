@@ -60,6 +60,10 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{comp:"u",l:[{md:"$",pk:"$",nm:"Integer"},{md:"$",pk:"$",nm:"Float"}]}');
         break;
     }
+    case ts.SyntaxKind.BooleanKeyword: {
+        writeModel('{md:"$",pk:"$",nm:"Boolean"}');
+        break;
+    }
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
