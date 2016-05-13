@@ -30,6 +30,16 @@ shared void numbers() {
 }
 
 test
+shared void boolean() {
+    Boolean b1 = true;
+    Boolean b2 = invert(b1);
+    assertEquals {
+        expected = false;
+        actual = b2;
+    };
+}
+
+test
 shared void klass() {
     assertEquals {
         expected = "Lucas";

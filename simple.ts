@@ -51,3 +51,6 @@ const enum PeopleKind {
     kind = 1,
     rude = 2
 }
+function invert(b: boolean): boolean {
+    return !b;
+}
