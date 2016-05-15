@@ -192,12 +192,16 @@ function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration 
 function emitDeclaration(decl: ts.Declaration): void {
     switch (decl.kind) {
     case ts.SyntaxKind.FunctionDeclaration:
-    case ts.SyntaxKind.MethodDeclaration: {
-        const fdecl = <ts.FunctionDeclaration|ts.MethodDeclaration>decl;
+    case ts.SyntaxKind.MethodDeclaration:
+    case ts.SyntaxKind.MethodSignature: {
+        const fdecl = <ts.FunctionDeclaration|ts.MethodDeclaration|ts.MethodSignature>decl;
         const name = (<ts.Identifier>fdecl.name).text;
         writeModel(`${name}:{$t:`);
         emitType(fdecl.type);
-        writeModel(",pa:1");
+        let pa: number = 1; // shared
+        if (decl.kind == ts.SyntaxKind.MethodSignature)
+            pa |= 4; // formal
+        writeModel(`,pa:${pa}`);
         emitParameters(fdecl.parameters, true);
         emitTypeParameters(fdecl.typeParameters);
         writeModel(`,mt:"m",nm:"${name}"}`);
