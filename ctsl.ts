@@ -262,6 +262,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         const name = idecl.name.text;
         writeModel(`${name}:{pa:1,mt:"i"`);
         const at: Array<ts.PropertySignature> = [];
+        const m: Array<ts.MethodSignature> = [];
         for (const declName in idecl.members) {
             const decl = idecl.members[declName];
             switch (decl.kind) {
@@ -270,12 +271,25 @@ function emitDeclaration(decl: ts.Declaration): void {
             case ts.SyntaxKind.PropertySignature:
                 at.push(<ts.PropertySignature>decl);
                 break;
+            case ts.SyntaxKind.MethodSignature:
+                m.push(<ts.MethodSignature>decl);
+                break;
             }
         }
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
             for (const decl of at) {
+                if (comma) writeModel(",");
+                comma = true;
+                emitDeclaration(decl);
+            }
+            writeModel('}');
+        }
+        if (m.length > 0) {
+            writeModel(`,$m:{`);
+            let comma: boolean = false;
+            for (const decl of m) {
                 if (comma) writeModel(",");
                 comma = true;
                 emitDeclaration(decl);
