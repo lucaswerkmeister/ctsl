@@ -9,9 +9,10 @@ function concatenate(s1: string, s2: string): string {
 }
 interface Named {
     name: string;
+    respondsTo(name: string): boolean;
 }
 function makeNamed(name: string): Named {
-    return { name: name };
+    return { name: name, respondsTo: (n) => n == name };
 }
 class Person implements Named {
     firstName: string;
@@ -25,6 +26,9 @@ class Person implements Named {
     greet(other: Person): string {
         return `Hello, ${other.name}! I am ${this.name}. How nice to meet you!`;
     }
+    respondsTo(name: string): boolean {
+        return name == this.name || name == this.firstName;
+    }
 }
 function makePerson(firstName: string, lastName: string): Person {
     return new Person(firstName, lastName);
@@ -34,6 +38,9 @@ class NoblePerson extends Person {
     constructor(firstName: string, lastName: string, title: string) {
         super(firstName, lastName);
         this.title = title;
+    }
+    respondsTo(name: string): boolean {
+        return super.respondsTo(name) || name == `${this.title} ${this.lastName}`;
     }
 }
 function id<V>(v: V): V {
@@ -45,6 +52,9 @@ class NamedAttribute<A> implements Named {
     constructor(name: string, attribute: A) {
         this.name = name;
         this.attribute = attribute;
+    }
+    respondsTo(name: string): boolean {
+        return name == this.name;
     }
 }
 const enum PeopleKind {

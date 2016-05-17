@@ -146,3 +146,11 @@ shared void classMethod() {
         actual = me.greet(you);
     };
 }
+
+test
+shared void interfaceMethod() {
+    assertTrue(Person("Lucas", "Werkmeister").respondsTo("Lucas"));
+    assertTrue(makeNamed("dis mah name").respondsTo("dis mah name"));
+    Named named = NoblePerson { title = "Grand Moff"; "Wilhuff"; "Tarkin"; };
+    assertTrue(named.respondsTo("Grand Moff Tarkin"));
+}
