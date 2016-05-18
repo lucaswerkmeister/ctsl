@@ -64,3 +64,6 @@ const enum PeopleKind {
 function invert(b: boolean): boolean {
     return !b;
 }
+function numberOrString(): number|string {
+    return "";
+}

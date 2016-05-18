@@ -154,3 +154,11 @@ shared void interfaceMethod() {
     Named named = NoblePerson { title = "Grand Moff"; "Wilhuff"; "Tarkin"; };
     assertTrue(named.respondsTo("Grand Moff Tarkin"));
 }
+
+test
+ignore ("compile-time only test")
+suppressWarnings ("unusedDeclaration")
+shared void unionType() {
+    Integer|Float|String ifs = numberOrString();
+    String|Float|Integer sfi = numberOrString();
+}
