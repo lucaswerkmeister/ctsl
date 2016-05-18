@@ -6,11 +6,12 @@
 import * as fs from "fs";
 
 const langver: string = "1.2.3";
+const dirname: string = "";
 const modname: string = "simple";
 const modver: string = "1.0.0";
 const options: ts.CompilerOptions = {};
 const host: ts.CompilerHost = ts.createCompilerHost(options);
-const program: ts.Program = ts.createProgram([`${modname}.ts`], options, host);
+const program: ts.Program = ts.createProgram([`${dirname}${modname}.ts`], options, host);
 const sourceFiles: ts.SourceFile[] = program.getSourceFiles();
 const sourceFile: ts.SourceFile = sourceFiles[sourceFiles.length - 1];
 const checker: ts.TypeChecker = program.getTypeChecker();
