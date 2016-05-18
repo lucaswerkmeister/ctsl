@@ -76,6 +76,18 @@ function emitType(type: ts.TypeNode): void {
         writeModel(`nm:"${typeName}"}`);
         break;
     }
+    case ts.SyntaxKind.UnionType: {
+        const ut = <ts.UnionTypeNode>type;
+        writeModel('{comp:"u",l:[');
+        let comma: boolean = false;
+        for (let t of ut.types) {
+            if (comma) writeModel(",");
+            comma = true;
+            emitType(t);
+        }
+        writeModel(']}');
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
