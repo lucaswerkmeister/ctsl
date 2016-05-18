@@ -348,9 +348,20 @@ function emitDeclaration(decl: ts.Declaration): void {
 writeModel(`(function(define) { define(function(require, ex$, module) {
 ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
 
-for (const declName in sourceFile.locals) {
+let locals = sourceFile.locals;
+// search for module declaration
+for (const localName in locals) {
+    const local = locals[localName];
+    if (local.valueDeclaration && local.valueDeclaration.kind == ts.SyntaxKind.ModuleDeclaration) {
+        locals = local.exports;
+        break;
+    }
+    // TODO warn if there is a module declaration but also other toplevel declarations
+}
+
+for (const declName in locals) {
     writeModel(",");
-    const decl = sourceFile.locals[declName];
+    const decl = locals[declName];
     emitDeclaration(decl.declarations[0]);
 }
 
@@ -377,8 +388,8 @@ program.emit(sourceFile, function(fileName: string, data: string, writeByteOrder
     writeJs(data);
 });
 
-for (const declName in sourceFile.locals) {
-    const decl = sourceFile.locals[declName].declarations[0];
+for (const declName in locals) {
+    const decl = locals[declName].declarations[0];
     switch (decl.kind) {
     case ts.SyntaxKind.FunctionDeclaration:
     case ts.SyntaxKind.ClassDeclaration: {
