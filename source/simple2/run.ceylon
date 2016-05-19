@@ -195,3 +195,11 @@ shared void functionType() {
         actual = n;
     };
 }
+
+test
+ignore ("compile-time only test")
+suppressWarnings ("unusedDeclaration")
+shared void anyType() {
+    Anything a = untypedIdentity(1);
+    Anything b = untypedIdentity(a);
+}

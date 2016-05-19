@@ -82,3 +82,6 @@ function getFunctionFromNumberStringBooleanToNumber(): (a: number, b: string, c:
 function callWithOneFooTrue(f: (a: number, b: string, c: boolean) => number): number {
     return f(1, "foo", true);
 }
+function untypedIdentity(x: any): any {
+    return x;
+}
