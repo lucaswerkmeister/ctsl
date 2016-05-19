@@ -233,7 +233,8 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`${name}:{pa:1`);
         emitHeritage(cdecl.heritageClauses);
         const constdecl = findConstructor(cdecl);
-        emitParameters(constdecl.parameters, false);
+        if (constdecl)
+            emitParameters(constdecl.parameters, false);
         writeModel(`,mt:"c"`);
         const at: Array<ts.PropertyDeclaration> = [];
         const m: Array<ts.MethodDeclaration> = [];
@@ -272,9 +273,13 @@ function emitDeclaration(decl: ts.Declaration): void {
             writeModel('}');
         }
         emitTypeParameters(cdecl.typeParameters);
-        writeModel(`,nm:"${name}",$cn:{$def:{pa:1,$new:true`);
-        emitParameters(constdecl.parameters, false);
-        writeModel("}}}");
+        writeModel(`,nm:"${name}"`);
+        if (constdecl) {
+            writeModel(',$cn:{$def:{pa:1,$new:true');
+            emitParameters(constdecl.parameters, false);
+            writeModel('}}');
+        }
+        writeModel("}");
         break;
     }
     case ts.SyntaxKind.InterfaceDeclaration: {
