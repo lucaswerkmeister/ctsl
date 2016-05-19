@@ -97,6 +97,20 @@ function emitType(type: ts.TypeNode): void {
         writeModel(']}');
         break;
     }
+    case ts.SyntaxKind.FunctionType: {
+        const ft = <ts.FunctionTypeNode>type;
+        writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{pk:"$",nm:"Tuple",l:[');
+        let comma: boolean = false;
+        for (let p of ft.parameters) {
+            if (comma) writeModel(",");
+            comma = true;
+            emitType(p.type);
+        }
+        writeModel(']},"Callable.Return":');
+        emitType(ft.type);
+        writeModel('}}');
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
