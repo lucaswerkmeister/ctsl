@@ -170,3 +170,11 @@ shared void defaultConstructor() {
         actual = DefaultConstructor();
     };
 }
+
+test
+shared void explicitDefaultConstructor() {
+    assertEquals {
+        expected = ExplicitDefaultConstructor();
+        actual = ExplicitDefaultConstructor();
+    };
+}

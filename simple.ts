@@ -68,3 +68,6 @@ function numberOrString(): number|string {
     return "";
 }
 class DefaultConstructor {}
+class ExplicitDefaultConstructor {
+    constructor() {}
+}
