@@ -185,3 +185,13 @@ suppressWarnings ("unusedDeclaration")
 shared void stringLiteralType() {
     String s = HTMLMediaElement().canPlayType("mp3");
 }
+
+test
+shared void functionType() {
+    <Integer|Float>(Integer|Float,String,Boolean) f = getFunctionFromNumberStringBooleanToNumber();
+    Integer|Float n = callWithOneFooTrue(f);
+    assertEquals {
+        expected = 1;
+        actual = n;
+    };
+}

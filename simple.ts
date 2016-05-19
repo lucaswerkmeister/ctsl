@@ -76,3 +76,9 @@ class HTMLMediaElement {
         return "";
     }
 }
+function getFunctionFromNumberStringBooleanToNumber(): (a: number, b: string, c: boolean) => number {
+    return function(a: number, b: string, c: boolean) { return a; };
+}
+function callWithOneFooTrue(f: (a: number, b: string, c: boolean) => number): number {
+    return f(1, "foo", true);
+}
