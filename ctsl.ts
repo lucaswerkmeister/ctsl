@@ -274,7 +274,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         }
         emitTypeParameters(cdecl.typeParameters);
         writeModel(`,nm:"${name}"`);
-        if (constdecl) {
+        if (constdecl && constdecl.parameters.length > 0) {
             writeModel(',$cn:{$def:{pa:1,$new:true');
             emitParameters(constdecl.parameters, false);
             writeModel('}}');
