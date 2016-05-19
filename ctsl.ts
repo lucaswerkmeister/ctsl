@@ -65,6 +65,10 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"Boolean"}');
         break;
     }
+    case ts.SyntaxKind.VoidKeyword: {
+        writeModel('{md:"$",pk:"$",nm:"Anything"}');
+        break;
+    }
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
@@ -217,6 +221,9 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`,pa:${pa}`);
         emitParameters(fdecl.parameters, true);
         emitTypeParameters(fdecl.typeParameters);
+        if (fdecl.type.kind == ts.SyntaxKind.VoidKeyword) {
+            writeModel(',$ff:1'); // flags: 1 = void, 2 = deferred
+        }
         writeModel(`,mt:"m",nm:"${name}"}`);
         break;
     }
