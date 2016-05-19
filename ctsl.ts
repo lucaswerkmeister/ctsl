@@ -69,6 +69,11 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"Anything"}');
         break;
     }
+    case ts.SyntaxKind.StringLiteralType: {
+        // map all string literal types to String for now
+        writeModel('{md:"$",pk:"$",nm:"String"}');
+        break;
+    }
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
