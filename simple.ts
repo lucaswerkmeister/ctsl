@@ -71,3 +71,8 @@ class DefaultConstructor {}
 class ExplicitDefaultConstructor {
     constructor() {}
 }
+class HTMLMediaElement {
+    canPlayType(mediaType: string): "probably" | "maybe" | "" {
+        return "";
+    }
+}

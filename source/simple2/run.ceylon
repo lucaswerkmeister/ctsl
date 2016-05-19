@@ -178,3 +178,10 @@ shared void explicitDefaultConstructor() {
         actual = ExplicitDefaultConstructor();
     };
 }
+
+test
+ignore ("compile-time only test")
+suppressWarnings ("unusedDeclaration")
+shared void stringLiteralType() {
+    String s = HTMLMediaElement().canPlayType("mp3");
+}
