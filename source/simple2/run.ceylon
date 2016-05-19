@@ -162,3 +162,11 @@ shared void unionType() {
     Integer|Float|String ifs = numberOrString();
     String|Float|Integer sfi = numberOrString();
 }
+
+test
+shared void defaultConstructor() {
+    assertEquals {
+        expected = DefaultConstructor();
+        actual = DefaultConstructor();
+    };
+}

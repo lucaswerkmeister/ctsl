@@ -67,3 +67,4 @@ function invert(b: boolean): boolean {
 function numberOrString(): number|string {
     return "";
 }
+class DefaultConstructor {}
