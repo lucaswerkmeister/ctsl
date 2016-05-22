@@ -91,3 +91,6 @@ function make3StringArray(a: string, b: string, c: string): string[] {
 function make3Array<T>(a: T, b: T, c: T): T[] {
     return [a, b, c];
 }
+function make1Array<T>(a: T): Array<T> {
+    return [a];
+}

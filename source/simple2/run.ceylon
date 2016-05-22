@@ -222,4 +222,12 @@ shared void arrayType() {
             actual = i;
         };
     }
+    Array<Integer> intArray2 = make1Array(1);
+    n = 1;
+    for (i in intArray2) {
+        assertEquals {
+            expected = n++;
+            actual = i;
+        };
+    }
 }
