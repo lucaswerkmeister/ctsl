@@ -414,6 +414,15 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`,pa:5,mt:"a",nm:"${name}"}`);
         break;
     }
+    case ts.SyntaxKind.TypeAliasDeclaration: {
+        const tadecl = <ts.TypeAliasDeclaration>decl;
+        const name = tadecl.name.text;
+        writeModel(`${name}:{nm:"${name}",pa:1,mt:"als",$alias:`);
+        emitType(tadecl.type);
+        emitTypeParameters(tadecl.typeParameters);
+        writeModel('}');
+        break;
+    }
     default: {
         error("unknown declaration kind " + decl.kind);
         break;
@@ -473,7 +482,8 @@ for (const declName in locals) {
         writeJsLine(`ex$.${declName}=${declName};`);
         break;
     }
-    case ts.SyntaxKind.InterfaceDeclaration: {
+    case ts.SyntaxKind.InterfaceDeclaration:
+    case ts.SyntaxKind.TypeAliasDeclaration: {
         // does not appear in source code
         break;
     }
