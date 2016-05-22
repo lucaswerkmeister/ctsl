@@ -94,3 +94,7 @@ function make3Array<T>(a: T, b: T, c: T): T[] {
 function make1Array<T>(a: T): Array<T> {
     return [a];
 }
+type SomeAlias<A,B> = A | B[];
+function makeSomeAlias<A,B>(a: A, b: B): SomeAlias<A,B> {
+    return a;
+}

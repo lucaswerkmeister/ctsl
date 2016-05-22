@@ -231,3 +231,13 @@ shared void arrayType() {
         };
     }
 }
+
+test
+ignore ("compile-time only test")
+suppressWarnings ("unusedDeclaration", "expressionTypeNothing")
+shared void typeAlias() {
+    Integer|Array<String> a = makeSomeAlias<Integer,String>(1, "");
+    SomeAlias<Integer,String> b = a;
+    Integer|Array<String> c = b;
+    Array<String> d = makeSomeAlias<Nothing,String>(nothing, "");
+}
