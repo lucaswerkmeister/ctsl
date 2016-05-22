@@ -116,6 +116,13 @@ function emitType(type: ts.TypeNode): void {
         writeModel('}}');
         break;
     }
+    case ts.SyntaxKind.ArrayType: {
+        const at = <ts.ArrayTypeNode>type;
+        writeModel('{md:"$",pk:"$",nm:"Array",ta:{"Array.Element":');
+        emitType(at.elementType);
+        writeModel('}}');
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
