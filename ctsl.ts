@@ -84,7 +84,28 @@ function emitType(type: ts.TypeNode): void {
         // TODO deal with qualified names
         const typeName: string = (<ts.Identifier>ref.typeName).text;
         writeModel("{");
-        if (!isTypeParameter(typeName)) {
+        if (ref.typeArguments && ref.typeArguments.length > 0) {
+            writeModel('ta:{');
+            let comma: boolean = false;
+            for (const ta of ref.typeArguments) {
+                if (comma) writeModel(",");
+                comma = true;
+                let paramName: string;
+                if (ta.kind == ts.SyntaxKind.TypeReference) {
+                    paramName = (<ts.Identifier>(<ts.TypeReferenceNode>ta).typeName).text;
+                } else {
+                    error(`cannot guess type parameter name for type argument to ${typeName}`);
+                    paramName = "UNKNOWN";
+                }
+                if (typeName == "Array") paramName = "Element";
+                writeModel(`"${typeName}.${paramName}":`);
+                emitType(ta);
+            }
+            writeModel('},');
+        }
+        if (typeName === "Array") {
+            writeModel('md:"$",pk:"$",');
+        } else if (!isTypeParameter(typeName)) {
             writeModel('pk:".",');
         }
         writeModel(`nm:"${typeName}"}`);
