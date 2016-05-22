@@ -203,3 +203,23 @@ shared void anyType() {
     Anything a = untypedIdentity(1);
     Anything b = untypedIdentity(a);
 }
+
+test
+shared void arrayType() {
+    Array<String> stringArray = make3StringArray("1", "2", "3");
+    variable value n = 1;
+    for (s in stringArray) {
+        assertEquals {
+            expected = (n++).string;
+            actual = s;
+        };
+    }
+    Array<Integer> intArray = make3Array(1, 2, 3);
+    n = 1;
+    for (i in intArray) {
+        assertEquals {
+            expected = n++;
+            actual = i;
+        };
+    }
+}

@@ -85,3 +85,9 @@ function callWithOneFooTrue(f: (a: number, b: string, c: boolean) => number): nu
 function untypedIdentity(x: any): any {
     return x;
 }
+function make3StringArray(a: string, b: string, c: string): string[] {
+    return [a, b, c];
+}
+function make3Array<T>(a: T, b: T, c: T): T[] {
+    return [a, b, c];
+}
