@@ -437,6 +437,7 @@ m$1.$addmod$(m$1,'ceylon.language/${langver}');
 m$1.$addmod$(ex$,'${modname}/${modver}');
 ex$.$mod$ans$=[];
 ex$.$pkg$ans$${modname}=function(){return[m$1.shared()];};
+if (!Array.prototype.iterator) Array.prototype.iterator = function() { return m$1.natc$(this,{t:m$1.Anything},'').iterator(); };
 `);
 
 program.emit(sourceFile, function(fileName: string, data: string, writeByteOrderMark: boolean, onError: (message: string) => void): void {
