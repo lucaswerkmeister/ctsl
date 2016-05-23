@@ -79,6 +79,10 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"Anything"}');
         break;
     }
+    case ts.SyntaxKind.ParenthesizedType: {
+        emitType((<ts.ParenthesizedTypeNode>type).type);
+        break;
+    }
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
