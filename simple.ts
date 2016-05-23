@@ -101,3 +101,9 @@ function makeSomeAlias<A,B>(a: A, b: B): SomeAlias<A,B> {
 function parId<V>(v: (V)): (V) {
     return v;
 }
+interface Killable {
+    kill(): void;
+}
+function namedAndKillable(): Named & Killable {
+    return { name: "Wowbagger the Infinitely Prolonged", kill: function() { throw "nuh uh"; } };
+}

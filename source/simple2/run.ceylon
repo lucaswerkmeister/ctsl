@@ -251,3 +251,12 @@ shared void parenthesizedType() {
         actual = a;
     };
 }
+
+test
+ignore ("compile-time only test")
+suppressWarnings ("unusedDeclaration")
+shared void intersectionType() {
+    Named&Killable nk = namedAndKillable();
+    Named n = namedAndKillable();
+    Killable k = namedAndKillable();
+}
