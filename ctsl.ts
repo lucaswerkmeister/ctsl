@@ -115,11 +115,13 @@ function emitType(type: ts.TypeNode): void {
         writeModel(`nm:"${typeName}"}`);
         break;
     }
-    case ts.SyntaxKind.UnionType: {
-        const ut = <ts.UnionTypeNode>type;
-        writeModel('{comp:"u",l:[');
+    case ts.SyntaxKind.UnionType:
+    case ts.SyntaxKind.IntersectionType: {
+        const uit = <ts.UnionOrIntersectionTypeNode>type;
+        const comp = type.kind == ts.SyntaxKind.UnionType ? "u" : "i";
+        writeModel(`{comp:"${comp}",l:[`);
         let comma: boolean = false;
-        for (let t of ut.types) {
+        for (let t of uit.types) {
             if (comma) writeModel(",");
             comma = true;
             emitType(t);
