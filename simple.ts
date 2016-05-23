@@ -98,3 +98,6 @@ type SomeAlias<A,B> = A | B[];
 function makeSomeAlias<A,B>(a: A, b: B): SomeAlias<A,B> {
     return a;
 }
+function parId<V>(v: (V)): (V) {
+    return v;
+}

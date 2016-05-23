@@ -241,3 +241,13 @@ shared void typeAlias() {
     Integer|Array<String> c = b;
     Array<String> d = makeSomeAlias<Nothing,String>(nothing, "");
 }
+
+test
+shared void parenthesizedType() {
+    String e = "x";
+    String a = parId(e);
+    assertEquals {
+        expected = e;
+        actual = a;
+    };
+}
