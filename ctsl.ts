@@ -150,6 +150,13 @@ function emitType(type: ts.TypeNode): void {
         writeModel('}}');
         break;
     }
+    case ts.SyntaxKind.TypeLiteral: {
+        // there’s only a single type literal in the TypeScript compiler, which we don’t care about.
+        // as it’s used in an intersection type, we emit Anything here,
+        // so that the intersection with the type literal is a noop.
+        writeModel('{md:"$",pk:"$",nm:"Anything}');
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
