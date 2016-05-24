@@ -109,6 +109,12 @@ function emitType(type: ts.TypeNode): void {
                         paramName = "Element";
                     break;
                 }
+                case "NodeArray":
+                case "Map": {
+                    if (index == 0)
+                        paramName = "T";
+                    break;
+                }
                 }
                 if (!paramName) {
                     error(`cannot guess type parameter name for ${index}th type argument to ${typeName}`);
