@@ -91,19 +91,32 @@ function emitType(type: ts.TypeNode): void {
         if (ref.typeArguments && ref.typeArguments.length > 0) {
             writeModel('ta:{');
             let comma: boolean = false;
+            let index: number = 0;
             for (const ta of ref.typeArguments) {
                 if (comma) writeModel(",");
                 comma = true;
                 let paramName: string;
-                if (ta.kind == ts.SyntaxKind.TypeReference) {
-                    paramName = (<ts.Identifier>(<ts.TypeReferenceNode>ta).typeName).text;
-                } else {
-                    error(`cannot guess type parameter name for type argument to ${typeName}`);
+                switch (typeName) {
+                case "SomeAlias": {
+                    switch (index) {
+                    case 0: paramName = "A"; break;
+                    case 1: paramName = "B"; break;
+                    }
+                    break;
+                }
+                case "Array": {
+                    if (index == 0)
+                        paramName = "Element";
+                    break;
+                }
+                }
+                if (!paramName) {
+                    error(`cannot guess type parameter name for ${index}th type argument to ${typeName}`);
                     paramName = "UNKNOWN";
                 }
-                if (typeName == "Array") paramName = "Element";
                 writeModel(`"${typeName}.${paramName}":`);
                 emitType(ta);
+                index++;
             }
             writeModel('},');
         }
