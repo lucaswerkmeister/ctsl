@@ -260,3 +260,22 @@ shared void intersectionType() {
     Named n = namedAndKillable();
     Killable k = namedAndKillable();
 }
+
+Value withDressedMap<Value>(Value fun()) {
+    dynamic { eval("Object.prototype.$_get = function(k) { return this[k]; };"); }
+    Value ret = fun();
+    dynamic { eval("delete Object.prototype.$_get;"); }
+    return ret;
+}
+
+test
+shared void indexSignature() {
+    assertEquals {
+        expected = "bar";
+        actual = withDressedMap(() => makeMap("foo", "bar")["foo"]);
+    };
+    assertEquals {
+        expected = 1;
+        actual = withDressedMap(() => makeMap("", 1)[""]);
+    };
+}

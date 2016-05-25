@@ -107,3 +107,9 @@ interface Killable {
 function namedAndKillable(): Named & Killable {
     return { name: "Wowbagger the Infinitely Prolonged", kill: function() { throw "nuh uh"; } };
 }
+interface Map<T> {
+    [index: string]: T;
+}
+function makeMap<T>(index: string, element: T): Map<T> {
+    return { [index]: element };
+}
