@@ -200,7 +200,7 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
     }
 }
 
-function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
+function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, indexSignature: ts.IndexSignatureDeclaration): void {
     let superClass: string = null;
     let interfaces: Array<string> = [];
     for (let clause of clauses || []) {
@@ -256,10 +256,21 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>): void {
     } else {
         writeModel(',super:{md:"$",pk:"$",nm:"Basic"}');
     }
-    if (interfaces.length > 0) {
-        writeModel(`,sts:[{pk:".",nm:"${interfaces[0]}"}`);
-        for (let i = 1; i < interfaces.length; i++) {
-            writeModel(`,{pk:".",nm:"${interfaces[i]}"}`);
+    if (indexSignature || interfaces.length > 0) {
+        writeModel(',sts:[');
+        let comma: boolean = false;
+        if (indexSignature) {
+            writeModel(`{md:"$",pk:"$",nm:"Correspondence",ta:{"Correspondence.Key":`);
+            emitType(indexSignature.parameters[0].type);
+            writeModel(',"Correspondence.Item":');
+            emitType(indexSignature.type);
+            writeModel('}}');
+            comma = true;
+        }
+        for (let i = 0; i < interfaces.length; i++) {
+            if (comma) writeModel(",");
+            comma = true;
+            writeModel(`{pk:".",nm:"${interfaces[i]}"}`);
         }
         writeModel(']');
     }
@@ -315,13 +326,13 @@ function emitDeclaration(decl: ts.Declaration): void {
         const cdecl = <ts.ClassDeclaration>decl;
         const name = cdecl.name.text;
         writeModel(`${name}:{pa:1`);
-        emitHeritage(cdecl.heritageClauses);
         const constdecl = findConstructor(cdecl);
         if (constdecl)
             emitParameters(constdecl.parameters, false);
         writeModel(`,mt:"c"`);
         const at: Array<ts.PropertyDeclaration> = [];
         const m: Array<ts.MethodDeclaration> = [];
+        let indexSignature: ts.IndexSignatureDeclaration = null;
         for (const declName in cdecl.members) {
             const decl = cdecl.members[declName];
             switch (decl.kind) {
@@ -334,11 +345,15 @@ function emitDeclaration(decl: ts.Declaration): void {
             case ts.SyntaxKind.MethodDeclaration:
                 m.push(<ts.MethodDeclaration>decl);
                 break;
+            case ts.SyntaxKind.IndexSignature:
+                indexSignature = <ts.IndexSignatureDeclaration>decl;
+                break;
             default:
                 error(`unknown member kind ${decl.kind}`);
                 break;
             }
         }
+        emitHeritage(cdecl.heritageClauses, indexSignature);
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
@@ -375,6 +390,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`${name}:{pa:1,mt:"i"`);
         const at: Array<ts.PropertySignature> = [];
         const m: Array<ts.MethodSignature> = [];
+        let indexSignature: ts.IndexSignatureDeclaration = null;
         for (const declName in idecl.members) {
             const decl = idecl.members[declName];
             switch (decl.kind) {
@@ -386,11 +402,15 @@ function emitDeclaration(decl: ts.Declaration): void {
             case ts.SyntaxKind.MethodSignature:
                 m.push(<ts.MethodSignature>decl);
                 break;
+            case ts.SyntaxKind.IndexSignature:
+                indexSignature = <ts.IndexSignatureDeclaration>decl;
+                break;
             default:
                 error(`unknown member kind ${decl.kind}`);
                 break;
             }
         }
+        emitHeritage(idecl.heritageClauses, indexSignature);
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
@@ -450,6 +470,10 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`${name}:{$t:`);
         emitType(pdecl.type);
         writeModel(`,pa:5,mt:"a",nm:"${name}"}`);
+        break;
+    }
+    case ts.SyntaxKind.IndexSignature: {
+        // nothing to emit
         break;
     }
     case ts.SyntaxKind.TypeAliasDeclaration: {
