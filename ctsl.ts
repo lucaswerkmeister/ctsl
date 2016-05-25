@@ -334,6 +334,9 @@ function emitDeclaration(decl: ts.Declaration): void {
             case ts.SyntaxKind.MethodDeclaration:
                 m.push(<ts.MethodDeclaration>decl);
                 break;
+            default:
+                error(`unknown member kind ${decl.kind}`);
+                break;
             }
         }
         if (at.length > 0) {
@@ -382,6 +385,9 @@ function emitDeclaration(decl: ts.Declaration): void {
                 break;
             case ts.SyntaxKind.MethodSignature:
                 m.push(<ts.MethodSignature>decl);
+                break;
+            default:
+                error(`unknown member kind ${decl.kind}`);
                 break;
             }
         }
