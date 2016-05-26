@@ -200,11 +200,17 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
     }
 }
 
-function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, indexSignature: ts.IndexSignatureDeclaration): void {
+function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boolean, indexSignature: ts.IndexSignatureDeclaration): void {
     let superClass: string = null;
     let interfaces: Array<string> = [];
     for (let clause of clauses || []) {
-        switch (clause.token) {
+        let token = clause.token;
+        if (isInterface) {
+            // rewrite extends to implements: in Ceylon, interfaces satisfy interfaces, they don’t extend them
+            if (token == ts.SyntaxKind.ExtendsKeyword)
+                token = ts.SyntaxKind.ImplementsKeyword;
+        }
+        switch (token) {
         case ts.SyntaxKind.ExtendsKeyword: {
             if (clause.types.length !== 1 || superClass !== null) {
                 error("multiple inheritance not yet supported");
@@ -353,7 +359,7 @@ function emitDeclaration(decl: ts.Declaration): void {
                 break;
             }
         }
-        emitHeritage(cdecl.heritageClauses, indexSignature);
+        emitHeritage(cdecl.heritageClauses, false, indexSignature);
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
@@ -410,7 +416,7 @@ function emitDeclaration(decl: ts.Declaration): void {
                 break;
             }
         }
-        emitHeritage(idecl.heritageClauses, indexSignature);
+        emitHeritage(idecl.heritageClauses, true, indexSignature);
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
