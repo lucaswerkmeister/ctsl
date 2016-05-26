@@ -279,3 +279,26 @@ shared void indexSignature() {
         actual = withDressedMap(() => makeMap("", 1)[""]);
     };
 }
+
+test
+shared void interfaceInheritance() {
+    AB ab = makeAB();
+    A a = ab;
+    B b = ab;
+    assertEquals {
+        expected = "a";
+        actual = a.a;
+    };
+    assertEquals {
+        expected = "a";
+        actual = ab.a;
+    };
+    assertEquals {
+        expected = "b";
+        actual = b.b;
+    };
+    assertEquals {
+        expected = "b";
+        actual = ab.b;
+    };
+}

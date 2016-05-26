@@ -113,3 +113,13 @@ interface Map<T> {
 function makeMap<T>(index: string, element: T): Map<T> {
     return { [index]: element };
 }
+interface A {
+    a: string;
+}
+interface B {
+    b: string;
+}
+interface AB extends A, B {}
+function makeAB(): AB {
+    return { a: "a", b: "b" };
+}
