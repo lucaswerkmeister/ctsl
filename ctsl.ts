@@ -173,7 +173,7 @@ function emitType(type: ts.TypeNode): void {
         // there’s only a single type literal in the TypeScript compiler, which we don’t care about.
         // as it’s used in an intersection type, we emit Anything here,
         // so that the intersection with the type literal is a noop.
-        writeModel('{md:"$",pk:"$",nm:"Anything}');
+        writeModel('{md:"$",pk:"$",nm:"Anything"}');
         break;
     }
     default: {
