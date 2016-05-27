@@ -200,7 +200,7 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
     }
 }
 
-function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boolean, indexSignature: ts.IndexSignatureDeclaration): void {
+function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boolean, indexSignature: ts.IndexSignatureDeclaration, callSignature: ts.CallSignatureDeclaration): void {
     let superClass: string = null;
     let interfaces: Array<string> = [];
     for (let clause of clauses || []) {
@@ -282,16 +282,31 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boo
     } else {
         writeModel(',super:{md:"$",pk:"$",nm:"Basic"}');
     }
-    if (indexSignature || interfaces.length > 0) {
+    if (indexSignature || callSignature || interfaces.length > 0) {
         writeModel(',sts:[');
         let comma: boolean = false;
         if (indexSignature) {
+            if (comma) writeModel(",");
+            comma = true;
             writeModel(`{md:"$",pk:"$",nm:"Correspondence",ta:{"Correspondence.Key":`);
             emitType(indexSignature.parameters[0].type);
             writeModel(',"Correspondence.Item":');
             emitType(indexSignature.type);
             writeModel('}}');
+        }
+        if (callSignature) {
+            if (comma) writeModel(",");
             comma = true;
+            writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{pk:"$",nm:"Tuple",l:[');
+            let comma2: boolean = false;
+            for (let p of callSignature.parameters) {
+                if (comma2) writeModel(",");
+                comma2 = true;
+                emitType(p.type);
+            }
+            writeModel(']},"Callable.Return":');
+            emitType(callSignature.type);
+            writeModel('}}');
         }
         for (let i = 0; i < interfaces.length; i++) {
             if (comma) writeModel(",");
@@ -385,7 +400,7 @@ function emitDeclaration(decl: ts.Declaration): void {
                 break;
             }
         }
-        emitHeritage(cdecl.heritageClauses, false, indexSignature);
+        emitHeritage(cdecl.heritageClauses, false, indexSignature, null);
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
@@ -423,6 +438,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         const at: Array<ts.PropertySignature> = [];
         const m: Array<ts.MethodSignature> = [];
         let indexSignature: ts.IndexSignatureDeclaration = null;
+        let callSignature: ts.CallSignatureDeclaration = null;
         for (const declName in idecl.members) {
             const decl = idecl.members[declName];
             switch (decl.kind) {
@@ -437,12 +453,15 @@ function emitDeclaration(decl: ts.Declaration): void {
             case ts.SyntaxKind.IndexSignature:
                 indexSignature = <ts.IndexSignatureDeclaration>decl;
                 break;
+            case ts.SyntaxKind.CallSignature:
+                callSignature = <ts.CallSignatureDeclaration>decl;
+                break;
             default:
                 error(`unknown member kind ${decl.kind}`);
                 break;
             }
         }
-        emitHeritage(idecl.heritageClauses, true, indexSignature);
+        emitHeritage(idecl.heritageClauses, true, indexSignature, callSignature);
         if (at.length > 0) {
             writeModel(`,$at:{`);
             let comma: boolean = false;
