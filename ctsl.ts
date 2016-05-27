@@ -236,6 +236,10 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boo
         }
         case ts.SyntaxKind.ImplementsKeyword: {
             for (let type of clause.types) {
+                if (type.typeArguments) {
+                    error("type arguments not yet supported");
+                    continue;
+                }
                 const expr = type.expression;
                 switch (expr.kind) {
                 case ts.SyntaxKind.Identifier: {
