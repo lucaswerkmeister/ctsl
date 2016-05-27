@@ -123,3 +123,11 @@ interface AB extends A, B {}
 function makeAB(): AB {
     return { a: "a", b: "b" };
 }
+interface StringTransformation extends A {
+    (s: string): string;
+}
+function makeAIdentityFunction(): StringTransformation {
+    let result = (s: string) => s;
+    result.a = "a";
+    return result;
+}

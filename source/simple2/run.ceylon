@@ -302,3 +302,26 @@ shared void interfaceInheritance() {
         actual = ab.b;
     };
 }
+
+test
+shared void callSignature() {
+    A&String(String) af = makeAIdentityFunction();
+    A a = af;
+    String(String) f = af;
+    assertEquals {
+        expected = "foo";
+        actual = af("foo");
+    };
+    assertEquals {
+        expected = "foo";
+        actual = f("foo");
+    };
+    assertEquals {
+        expected = "a";
+        actual = af.a;
+    };
+    assertEquals {
+        expected = "a";
+        actual = a.a;
+    };
+}
