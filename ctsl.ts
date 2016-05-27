@@ -482,6 +482,7 @@ function emitDeclaration(decl: ts.Declaration): void {
             }
             writeModel('}');
         }
+        emitTypeParameters(idecl.typeParameters);
         writeModel(`,nm:"${name}"}`);
         break;
     }
