@@ -237,7 +237,23 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boo
         case ts.SyntaxKind.ImplementsKeyword: {
             for (let type of clause.types) {
                 if (type.typeArguments) {
-                    error("type arguments not yet supported");
+                    let taName = (<any>type.typeArguments[0]).typeName.text;
+                    switch (taName) {
+                    case "T": {
+                        // extends Array<T>
+                        interfaces.push('Array",ta:{"Array.Element":{nm:"T"}},dummy:"');
+                        break;
+                    }
+                    case "Modifier": {
+                        // extends NodeArray<Modifier>
+                        interfaces.push('NodeArray",ta:{"NodeArray.T":{pk:".",nm:"Modifier"}},dummy:"');
+                        break;
+                    }
+                    default: {
+                        error("type arguments not supported");
+                        break;
+                    }
+                    }
                     continue;
                 }
                 const expr = type.expression;
@@ -280,7 +296,13 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boo
         for (let i = 0; i < interfaces.length; i++) {
             if (comma) writeModel(",");
             comma = true;
-            writeModel(`{pk:".",nm:"${interfaces[i]}"}`);
+            let pk: string;
+            if (interfaces[i].indexOf('Array"') == 0) {
+                pk = 'md:"$",pk:"$"';
+            } else {
+                pk = 'pk:"."';
+            }
+            writeModel(`{${pk},nm:"${interfaces[i]}"}`);
         }
         writeModel(']');
     }
