@@ -8,12 +8,14 @@ import * as fs from "fs";
 const langver: string = "1.2.3";
 const dirname: string = "";
 const modname: string = "simple";
+const units: string[] = ["simple"];
 const modver: string = "1.0.0";
 const options: ts.CompilerOptions = {};
 const host: ts.CompilerHost = ts.createCompilerHost(options);
-const program: ts.Program = ts.createProgram([`${dirname}${modname}.ts`], options, host);
+const filenames: string[] = [];
+for (const unit of units) { filenames.push(`${dirname}${unit}.ts`); }
+const program: ts.Program = ts.createProgram(filenames, options, host);
 const sourceFiles: ts.SourceFile[] = program.getSourceFiles();
-const sourceFile: ts.SourceFile = sourceFiles[sourceFiles.length - 1];
 const checker: ts.TypeChecker = program.getTypeChecker();
 const fd_js: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}.js`, "w");
 const fd_model: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}-model.js`, "w");
@@ -547,21 +549,23 @@ function emitDeclaration(decl: ts.Declaration): void {
 writeModel(`(function(define) { define(function(require, ex$, module) {
 ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
 
-let locals = sourceFile.locals;
-// search for module declaration
-for (const localName in locals) {
-    const local = locals[localName];
-    if (local.valueDeclaration && local.valueDeclaration.kind == ts.SyntaxKind.ModuleDeclaration) {
-        locals = local.exports;
-        break;
+for (const sourceFile of sourceFiles) {
+    let locals = sourceFile.locals;
+    // search for module declaration
+    for (const localName in locals) {
+        const local = locals[localName];
+        if (local.valueDeclaration && local.valueDeclaration.kind == ts.SyntaxKind.ModuleDeclaration) {
+            locals = local.exports;
+            break;
+        }
+        // TODO warn if there is a module declaration but also other toplevel declarations
     }
-    // TODO warn if there is a module declaration but also other toplevel declarations
-}
-
-for (const declName in locals) {
-    writeModel(",");
-    const decl = locals[declName];
-    emitDeclaration(decl.declarations[0]);
+    
+    for (const declName in locals) {
+        writeModel(",");
+        const decl = locals[declName];
+        emitDeclaration(decl.declarations[0]);
+    }
 }
 
 writeModel(`},"$mod-bin":"9.1","$mod-name":"${modname}"};
@@ -584,46 +588,60 @@ ex$.$pkg$ans$${modname}=function(){return[m$1.shared()];};
 if (!Array.prototype.iterator) Array.prototype.iterator = function() { return m$1.natc$(this,{t:m$1.Anything},'').iterator(); };
 `);
 
-program.emit(sourceFile, function(fileName: string, data: string, writeByteOrderMark: boolean, onError: (message: string) => void): void {
-    writeJs(data);
-});
-
-for (const declName in locals) {
-    const decl = locals[declName].declarations[0];
-    switch (decl.kind) {
-    case ts.SyntaxKind.FunctionDeclaration:
-    case ts.SyntaxKind.ClassDeclaration: {
-        writeJsLine(`ex$.${declName}=${declName};`);
-        break;
-    }
-    case ts.SyntaxKind.InterfaceDeclaration:
-    case ts.SyntaxKind.TypeAliasDeclaration: {
-        // does not appear in source code
-        break;
-    }
-    case ts.SyntaxKind.EnumDeclaration: {
-        const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
-        let value: number = 0;
-        for (const member of (<ts.EnumDeclaration>decl).members) {
-            const memberName: string = (<ts.Identifier>member.name).text;
-            if (isConst) {
-                const initializer: ts.Expression = member.initializer;
-                if (initializer) {
-                    value = parseInt((<ts.LiteralExpression>initializer).text);
-                } else {
-                    value++;
-                }
-                writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${value};}`);
-            } else {
-                writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${declName}.${memberName};}`);
-            }
+for (const sourceFile of sourceFiles) {
+    program.emit(sourceFile, function(fileName: string, data: string, writeByteOrderMark: boolean, onError: (message: string) => void): void {
+        writeJs(data);
+    });
+    
+    let locals = sourceFile.locals;
+    // search for module declaration
+    for (const localName in locals) {
+        const local = locals[localName];
+        if (local.valueDeclaration && local.valueDeclaration.kind == ts.SyntaxKind.ModuleDeclaration) {
+            locals = local.exports;
+            break;
         }
-        break;
+        // TODO warn if there is a module declaration but also other toplevel declarations
     }
-    default: {
-        error("unknown toplevel declaration kind " + decl.kind);
-        break;
-    }
+    
+    
+    for (const declName in locals) {
+        const decl = locals[declName].declarations[0];
+        switch (decl.kind) {
+        case ts.SyntaxKind.FunctionDeclaration:
+        case ts.SyntaxKind.ClassDeclaration: {
+            writeJsLine(`ex$.${declName}=${declName};`);
+            break;
+        }
+        case ts.SyntaxKind.InterfaceDeclaration:
+        case ts.SyntaxKind.TypeAliasDeclaration: {
+            // does not appear in source code
+            break;
+        }
+        case ts.SyntaxKind.EnumDeclaration: {
+            const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
+            let value: number = 0;
+            for (const member of (<ts.EnumDeclaration>decl).members) {
+                const memberName: string = (<ts.Identifier>member.name).text;
+                if (isConst) {
+                    const initializer: ts.Expression = member.initializer;
+                    if (initializer) {
+                        value = parseInt((<ts.LiteralExpression>initializer).text);
+                    } else {
+                        value++;
+                    }
+                    writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${value};}`);
+                } else {
+                    writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${declName}.${memberName};}`);
+                }
+            }
+            break;
+        }
+        default: {
+            error("unknown toplevel declaration kind " + decl.kind);
+            break;
+        }
+        }
     }
 }
 
