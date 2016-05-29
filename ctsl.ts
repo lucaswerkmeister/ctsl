@@ -54,6 +54,7 @@ function isTypeParameter(typeName: string): boolean {
 }
 
 function emitType(type: ts.TypeNode): void {
+    if (!type) type = <ts.TypeNode>{ kind: ts.SyntaxKind.AnyKeyword };
     switch (type.kind) {
     case ts.SyntaxKind.StringKeyword: {
         writeModel('{md:"$",pk:"$",nm:"String"}');
@@ -365,7 +366,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`,pa:${pa}`);
         emitParameters(fdecl.parameters, true);
         emitTypeParameters(fdecl.typeParameters);
-        if (fdecl.type.kind == ts.SyntaxKind.VoidKeyword) {
+        if (fdecl.type && fdecl.type.kind == ts.SyntaxKind.VoidKeyword) {
             writeModel(',$ff:1'); // flags: 1 = void, 2 = deferred
         }
         writeModel(`,mt:"m",nm:"${name}"}`);
