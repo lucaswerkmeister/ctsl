@@ -520,7 +520,8 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
         break;
     }
-    case ts.SyntaxKind.PropertySignature: {
+    case ts.SyntaxKind.PropertySignature:
+    case ts.SyntaxKind.VariableDeclaration: {
         const pdecl = <ts.PropertySignature>decl;
         const name = (<ts.Identifier>pdecl.name).text;
         writeModel(`${name}:{$t:`);
@@ -637,6 +638,10 @@ for (const sourceFile of sourceFiles) {
                     writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${declName}.${memberName};}`);
                 }
             }
+            break;
+        }
+        case ts.SyntaxKind.VariableDeclaration: {
+            writeJsLine(`ex$.${declName}=function(){return ${declName};};`);
             break;
         }
         default: {
