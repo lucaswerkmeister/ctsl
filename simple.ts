@@ -120,9 +120,7 @@ interface B {
     b: string;
 }
 interface AB extends A, B {}
-function makeAB(): AB {
-    return { a: "a", b: "b" };
-}
+const ab: AB = { a: "a", b: "b" };
 interface StringTransformation extends A {
     (s: string): string;
 }

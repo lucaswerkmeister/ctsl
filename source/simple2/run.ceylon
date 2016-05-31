@@ -282,16 +282,16 @@ shared void indexSignature() {
 
 test
 shared void interfaceInheritance() {
-    AB ab = makeAB();
-    A a = ab;
-    B b = ab;
+    AB ab_ = ab;
+    A a = ab_;
+    B b = ab_;
     assertEquals {
         expected = "a";
         actual = a.a;
     };
     assertEquals {
         expected = "a";
-        actual = ab.a;
+        actual = ab_.a;
     };
     assertEquals {
         expected = "b";
@@ -299,7 +299,7 @@ shared void interfaceInheritance() {
     };
     assertEquals {
         expected = "b";
-        actual = ab.b;
+        actual = ab_.b;
     };
 }
 
