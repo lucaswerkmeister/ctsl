@@ -113,7 +113,8 @@ function emitType(type: ts.TypeNode): void {
                     break;
                 }
                 case "NodeArray":
-                case "Map": {
+                case "Map":
+                case "FileMap": {
                     if (index == 0)
                         paramName = "T";
                     break;
