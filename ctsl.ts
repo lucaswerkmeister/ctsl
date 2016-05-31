@@ -525,7 +525,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         const name = (<ts.Identifier>pdecl.name).text;
         writeModel(`${name}:{$t:`);
         emitType(pdecl.type);
-        writeModel(`,pa:5,mt:"a",nm:"${name}"}`);
+        writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
         break;
     }
     case ts.SyntaxKind.IndexSignature: {
