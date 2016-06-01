@@ -567,6 +567,7 @@ function emitDeclaration(decl: ts.Declaration): void {
 writeModel(`(function(define) { define(function(require, ex$, module) {
 ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
 
+let names: Array<string> = [];
 for (const sourceFile of sourceFiles) {
     let locals = sourceFile.locals;
     // search for module declaration
@@ -580,9 +581,11 @@ for (const sourceFile of sourceFiles) {
     }
     
     for (const declName in locals) {
+        if (names.indexOf(declName) >= 0) continue;
         writeModel(",");
         const decl = locals[declName];
         emitDeclaration(decl.declarations[0]);
+        names.push(declName);
     }
 }
 
