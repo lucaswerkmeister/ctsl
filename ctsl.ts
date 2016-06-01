@@ -180,6 +180,16 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"Anything"}');
         break;
     }
+    case ts.SyntaxKind.TypePredicate: {
+        // map to boolean for now
+        writeModel('{md:"$",pk:"$",nm:"Boolean"}');
+        break;
+    }
+    case ts.SyntaxKind.ConstructorType: {
+        // proper handling requires changes to backend, map to Anything for now
+        writeModel('{md:"$",pk:"$",nm:"Anything"}');
+        break;
+    }
     default: {
         error("unknown type kind " + type.kind);
         break;
@@ -542,6 +552,11 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel('}');
         break;
     }
+    case ts.SyntaxKind.ModuleDeclaration: {
+        // ignore for now
+        writeModel('dummy:{}');
+        break;
+    }
     default: {
         error("unknown declaration kind " + decl.kind);
         break;
@@ -619,6 +634,10 @@ for (const sourceFile of sourceFiles) {
         case ts.SyntaxKind.InterfaceDeclaration:
         case ts.SyntaxKind.TypeAliasDeclaration: {
             // does not appear in source code
+            break;
+        }
+        case ts.SyntaxKind.ModuleDeclaration: {
+            // ignore for now
             break;
         }
         case ts.SyntaxKind.EnumDeclaration: {
