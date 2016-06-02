@@ -129,3 +129,4 @@ function makeAIdentityFunction(): StringTransformation {
     result.a = "a";
     return result;
 }
+const stringGetter: () => string = () => "";

@@ -325,3 +325,11 @@ shared void callSignature() {
         actual = a.a;
     };
 }
+
+test
+shared void callableNoParams() {
+    assertEquals {
+        expected = "";
+        actual = stringGetter();
+    };
+}
