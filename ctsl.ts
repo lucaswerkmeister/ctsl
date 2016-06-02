@@ -563,7 +563,8 @@ function emitDeclaration(decl: ts.Declaration): void {
     }
     case ts.SyntaxKind.ModuleDeclaration: {
         // ignore for now
-        writeModel('dummy:{}');
+        const dummyIndex = (Math.random() * 1024) | 0;
+        writeModel(`dummy${dummyIndex}:{$t:{md:"$",pk:"$",nm:"Null"},mt:"a",nm:"dummy${dummyIndex}"}`);
         break;
     }
     default: {
