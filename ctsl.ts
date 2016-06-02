@@ -155,14 +155,18 @@ function emitType(type: ts.TypeNode): void {
     }
     case ts.SyntaxKind.FunctionType: {
         const ft = <ts.FunctionTypeNode>type;
-        writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{pk:"$",nm:"Tuple",l:[');
-        let comma: boolean = false;
-        for (let p of ft.parameters) {
-            if (comma) writeModel(",");
-            comma = true;
-            emitType(p.type);
+        if (ft.parameters.length == 0) {
+            writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{md:"$",pk:"$",nm:"Empty"},"Callable.Return":');
+        } else {
+            writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{pk:"$",nm:"Tuple",l:[');
+            let comma: boolean = false;
+            for (let p of ft.parameters) {
+                if (comma) writeModel(",");
+                comma = true;
+                emitType(p.type);
+            }
+            writeModel(']},"Callable.Return":');
         }
-        writeModel(']},"Callable.Return":');
         emitType(ft.type);
         writeModel('}}');
         break;
@@ -312,12 +316,16 @@ function emitHeritage(clauses: ts.NodeArray<ts.HeritageClause>, isInterface: boo
         if (callSignature) {
             if (comma) writeModel(",");
             comma = true;
-            writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{pk:"$",nm:"Tuple",l:[');
-            let comma2: boolean = false;
-            for (let p of callSignature.parameters) {
-                if (comma2) writeModel(",");
-                comma2 = true;
-                emitType(p.type);
+            if (callSignature.parameters.length == 0) {
+                writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{md:"$",pk:"$",nm:"Empty"},"Callable.Return":');
+            } else {
+                writeModel('{md:"$",pk:"$",nm:"Callable",ta:{"Callable.Arguments":{pk:"$",nm:"Tuple",l:[');
+                let comma2: boolean = false;
+                for (let p of callSignature.parameters) {
+                    if (comma2) writeModel(",");
+                    comma2 = true;
+                    emitType(p.type);
+                }
             }
             writeModel(']},"Callable.Return":');
             emitType(callSignature.type);
