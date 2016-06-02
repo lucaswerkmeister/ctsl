@@ -51,7 +51,7 @@ function isTypeParameter(typeName: string): boolean {
     // make this as hacky as needed for the first iteration
     // for now: assume all type parameters are a single uppercase letter
     return typeName.length === 1 && typeName.toUpperCase() === typeName ||
-        typeName.length === 2 && typeName[0].toUpperCase() === typeName[0] && parseInt(typeName[1]) !== null;
+        typeName.length === 2 && typeName[0].toUpperCase() === typeName[0] && parseInt(typeName[1]) >= 0;
 }
 
 function emitType(type: ts.TypeNode): void {
