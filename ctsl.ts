@@ -599,6 +599,7 @@ for (const sourceFile of sourceFiles) {
     }
 }
 
+writeModel(',Date:{pa:1,mt:"i",nm:"Date"}');
 writeModel(`},"$mod-bin":"9.1","$mod-name":"${modname}"};
 });
 }(typeof define==='function' && define.amd ? define : function (factory) {
