@@ -131,7 +131,7 @@ function emitType(type: ts.TypeNode): void {
             }
             writeModel('},');
         }
-        if (typeName === "Array") {
+        if (typeName === "Array" || typeName === "String") {
             writeModel('md:"$",pk:"$",');
         } else if (!isTypeParameter(typeName)) {
             writeModel('pk:".",');
