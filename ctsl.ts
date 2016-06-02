@@ -581,6 +581,7 @@ writeModel(`(function(define) { define(function(require, ex$, module) {
 ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
 
 let names: Array<string> = [];
+let namespace: string = "";
 for (const sourceFile of sourceFiles) {
     let locals = sourceFile.locals;
     // search for module declaration
@@ -588,6 +589,7 @@ for (const sourceFile of sourceFiles) {
         const local = locals[localName];
         if (local.valueDeclaration && local.valueDeclaration.kind == ts.SyntaxKind.ModuleDeclaration) {
             locals = local.exports;
+            namespace = `${(<ts.Identifier>local.valueDeclaration.name).text}.`;
             break;
         }
         // TODO warn if there is a module declaration but also other toplevel declarations
@@ -645,7 +647,7 @@ for (const sourceFile of sourceFiles) {
         switch (decl.kind) {
         case ts.SyntaxKind.FunctionDeclaration:
         case ts.SyntaxKind.ClassDeclaration: {
-            writeJsLine(`ex$.${declName}=${declName};`);
+            writeJsLine(`ex$.${declName}=${namespace}${declName};`);
             break;
         }
         case ts.SyntaxKind.InterfaceDeclaration:
