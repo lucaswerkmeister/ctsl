@@ -212,6 +212,9 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
             comma = true;
             writeModel("{$t:");
             emitType(param.type);
+            if (param.questionToken) {
+                writeModel(',def:1');
+            }
             writeModel(`,mt:"prm",nm:"${(<ts.Identifier>param.name).text}"}`);
         }
         if (mpl) writeModel("]");
