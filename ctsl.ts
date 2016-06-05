@@ -6,9 +6,9 @@
 import * as fs from "fs";
 
 const langver: string = "1.2.3";
-const dirname: string = "";
-const modname: string = "simple";
-const units: string[] = ["simple"];
+const dirname: string = "TypeScript/src/compiler/";
+const modname: string = "tsc";
+const units: string[] = ["binder", "checker", "commandLineParser", "core", "declarationEmitter", "diagnosticInformationMap.generated", "emitter", "parser", "program", "scanner", "sourcemap", "sys", "types", "utilities"];
 const modver: string = "1.0.0";
 const options: ts.CompilerOptions = {};
 const host: ts.CompilerHost = ts.createCompilerHost(options);
