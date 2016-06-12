@@ -534,14 +534,7 @@ function emitDeclaration(decl: ts.Declaration): void {
         writeModel(`}}`);
         break;
     }
-    case ts.SyntaxKind.PropertyDeclaration: {
-        const pdecl = <ts.PropertyDeclaration>decl;
-        const name = (<ts.Identifier>pdecl.name).text;
-        writeModel(`${name}:{$t:`);
-        emitType(pdecl.type);
-        writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
-        break;
-    }
+    case ts.SyntaxKind.PropertyDeclaration:
     case ts.SyntaxKind.PropertySignature:
     case ts.SyntaxKind.VariableDeclaration: {
         const pdecl = <ts.PropertySignature>decl;
