@@ -661,7 +661,7 @@ for (const sourceFile of sourceFiles) {
         }
         case ts.SyntaxKind.EnumDeclaration: {
             const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
-            let value: number = 0;
+            let value: number = -1;
             for (const member of (<ts.EnumDeclaration>decl).members) {
                 const memberName: string = (<ts.Identifier>member.name).text;
                 if (isConst) {
