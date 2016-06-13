@@ -473,7 +473,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
     case ts.SyntaxKind.InterfaceDeclaration: {
         const idecl = <ts.InterfaceDeclaration>decl;
         const name = idecl.name.text;
-        writeModel(`${name}:{pa:1,mt:"i"`);
+        writeModel(`${name}:{pa:1,mt:"i",dyn:1`);
         const at: Array<ts.PropertySignature> = [];
         const m: Array<ts.MethodSignature> = [];
         let indexSignature: ts.IndexSignatureDeclaration = null;
