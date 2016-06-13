@@ -203,6 +203,160 @@ function emitType(type: ts.TypeNode): void {
     }
 }
 
+function emitRuntimeType(type: ts.TypeNode, containerName: string, containerTypeParameters: ts.NodeArray<ts.TypeParameterDeclaration>): void {
+    if (!type) type = <ts.TypeNode>{ kind: ts.SyntaxKind.AnyKeyword };
+    switch (type.kind) {
+    case ts.SyntaxKind.StringKeyword: {
+        writeJs('{t:m$1.$_String}');
+        break;
+    }
+    case ts.SyntaxKind.NumberKeyword: {
+        writeJs("{t:'u',l:[{t:m$1.Integer},{t:m$1.Float}]}");
+        break;
+    }
+    case ts.SyntaxKind.BooleanKeyword: {
+        writeJs('{t:m$1.$_Boolean}');
+        break;
+    }
+    case ts.SyntaxKind.VoidKeyword: {
+        writeJs('{t:m$1.Anything}');
+        break;
+    }
+    case ts.SyntaxKind.StringLiteralType: {
+        // map all string literal types to String for now
+        writeJs('{t:m$1.$_String}');
+        break;
+    }
+    case ts.SyntaxKind.AnyKeyword: {
+        // map to Anything for now
+        writeJs('{t:m$1.Anything}');
+        break;
+    }
+    case ts.SyntaxKind.ParenthesizedType: {
+        emitRuntimeType((<ts.ParenthesizedTypeNode>type).type, containerName, containerTypeParameters);
+        break;
+    }
+    case ts.SyntaxKind.TypeReference: {
+        const ref = <ts.TypeReferenceNode>type;
+        // TODO deal with qualified names
+        const typeName: string = (<ts.Identifier>ref.typeName).text;
+        writeJs("{");
+        if (ref.typeArguments && ref.typeArguments.length > 0) {
+            writeJs('a:{');
+            let comma: boolean = false;
+            let index: number = 0;
+            for (const ta of ref.typeArguments) {
+                if (comma) writeJs(",");
+                comma = true;
+                let paramName: string;
+                switch (typeName) {
+                case "SomeAlias": {
+                    switch (index) {
+                    case 0: paramName = "A"; break;
+                    case 1: paramName = "B"; break;
+                    }
+                    break;
+                }
+                case "Array": {
+                    if (index == 0)
+                        paramName = "Element";
+                    break;
+                }
+                case "NodeArray":
+                case "Map":
+                case "FileMap": {
+                    if (index == 0)
+                        paramName = "T";
+                    break;
+                }
+                }
+                if (!paramName) {
+                    error(`cannot guess type parameter name for ${index}th type argument to ${typeName}`);
+                    paramName = "UNKNOWN";
+                }
+                writeJs(`${paramName}$${typeName}:`);
+                if (containerTypeParameters && containerTypeParameters.some(function(tp: ts.TypeParameterDeclaration) { return tp.name.text == typeName; })) {
+                    writeJs(`'${typeName}$${containerName}'`);
+                } else {
+                    emitRuntimeType(ta, containerName, containerTypeParameters);
+                }
+                index++;
+            }
+            writeJs('},');
+        }
+        if (typeName === "Array") {
+            writeJs('t:m$1.$_Array');
+        } else if (typeName === "String") {
+            writeJs('t:m$1.$_String');
+        } else {
+            writeJs(`t:$init$${typeName}()`);
+        }
+        writeJs('}');
+        break;
+    }
+    case ts.SyntaxKind.UnionType:
+    case ts.SyntaxKind.IntersectionType: {
+        const uit = <ts.UnionOrIntersectionTypeNode>type;
+        const comp = type.kind == ts.SyntaxKind.UnionType ? "u" : "i";
+        writeJs(`{t:'${comp}',l:[`);
+        let comma: boolean = false;
+        for (let t of uit.types) {
+            if (comma) writeJs(",");
+            comma = true;
+            emitRuntimeType(t, containerName, containerTypeParameters);
+        }
+        writeJs(']}');
+        break;
+    }
+    case ts.SyntaxKind.FunctionType: {
+        const ft = <ts.FunctionTypeNode>type;
+        if (ft.parameters.length == 0) {
+            writeJs('{t:m$1.Callable,a:{Arguments$Callable:{t:m$1.Empty},"Callable.Return":');
+        } else {
+            writeJs("{t:m$1.Callable,a:{Arguments$Callable:{t:'T',l:[");
+            let comma: boolean = false;
+            for (let p of ft.parameters) {
+                if (comma) writeJs(",");
+                comma = true;
+                emitRuntimeType(p.type, containerName, containerTypeParameters);
+            }
+            writeJs(']},Return$Callable:');
+        }
+        emitRuntimeType(ft.type, containerName, containerTypeParameters);
+        writeJs('}}');
+        break;
+    }
+    case ts.SyntaxKind.ArrayType: {
+        const at = <ts.ArrayTypeNode>type;
+        writeJs('{t:m$1.$_Array,a:{Element$Array:');
+        emitRuntimeType(at.elementType, containerName, containerTypeParameters);
+        writeJs('}}');
+        break;
+    }
+    case ts.SyntaxKind.TypeLiteral: {
+        // there’s only a single type literal in the TypeScript compiler, which we don’t care about.
+        // as it’s used in an intersection type, we emit Anything here,
+        // so that the intersection with the type literal is a noop.
+        writeJs('{t:m$1.Anything}');
+        break;
+    }
+    case ts.SyntaxKind.TypePredicate: {
+        // map to boolean for now
+        writeJs('{t:m$1.$_Boolean}');
+        break;
+    }
+    case ts.SyntaxKind.ConstructorType: {
+        // proper handling requires changes to backend, map to Anything for now
+        writeJs('{t:m$1.Anything}');
+        break;
+    }
+    default: {
+        error("unknown runtime type kind " + type.kind);
+        break;
+    }
+    }
+}
+
 function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: boolean): void {
     if (params.length > 0) {
         writeModel(",ps:[");
@@ -220,6 +374,24 @@ function emitParameters(params: ts.NodeArray<ts.ParameterDeclaration>, mpl: bool
         }
         if (mpl) writeModel("]");
         writeModel("]");
+    }
+}
+
+function emitRuntimeParameters(params: ts.NodeArray<ts.ParameterDeclaration>, containerName: string, containerTypeParameters: ts.NodeArray<ts.TypeParameterDeclaration>): void {
+    if (params.length > 0) {
+        writeJs(",ps:[");
+        let comma: boolean = false;
+        for (let param of params) {
+            if (comma) writeJs(",");
+            comma = true;
+            writeJs("{$t:");
+            emitRuntimeType(param.type, containerName, containerTypeParameters);
+            if (param.questionToken) {
+                writeJs(',def:1');
+            }
+            writeJs(`,mt:"prm",nm:"${(<ts.Identifier>param.name).text}"}`);
+        }
+        writeJs("]");
     }
 }
 
@@ -671,9 +843,87 @@ for (const sourceFile of sourceFiles) {
             writeJsLine(`ex$.${declName}=${namespace}${declName};`);
             break;
         }
-        case ts.SyntaxKind.InterfaceDeclaration:
+        case ts.SyntaxKind.InterfaceDeclaration: {
+            const idecl: ts.InterfaceDeclaration = <ts.InterfaceDeclaration>decl;
+            const name: string = idecl.name.text;
+            const lname: string = name[0].toLowerCase() + name.substr(1);
+            writeJs(`function ${name}(${lname}$){
+}
+${name}.dynmem$=[`);
+            let comma: boolean = false;
+            for (const decl of idecl.members) {
+                switch (decl.kind) {
+                case ts.SyntaxKind.PropertySignature:
+                case ts.SyntaxKind.MethodSignature:
+                    const declName = (<ts.Identifier>decl.name).text;
+                    if (decl.questionToken || declName.indexOf('_') == 0) {
+                        // discard optional members for now
+                        break;
+                    }
+                    if (comma) writeJs(',');
+                    comma = true;
+                    writeJs(`'${declName}'`);
+                    break;
+                case ts.SyntaxKind.IndexSignature:
+                case ts.SyntaxKind.CallSignature:
+                    break;
+                default:
+                    error(`unknown member kind ${decl.kind}`);
+                    break;
+                }
+            }
+            writeJs(`];${name}.$crtmm$=function(){return{mod:$CCMM$,pa:1,d:['${modname}','${name}']};};
+ex$.${name}=${name};
+function $init$${name}(){
+    if(${name}.$$===undefined){
+        m$1.initTypeProtoI(${name},'${modname}::${name}');
+        (function(${lname}$){
+`);
+            for (const decl of idecl.members) {
+                switch (decl.kind) {
+                case ts.SyntaxKind.PropertySignature: {
+                    const declName = (<ts.Identifier>decl.name).text;
+                    const declUname = declName[0].toUpperCase() + declName.substr(1);
+                    const pdecl = <ts.PropertySignature>decl;
+                    writeJs(`            ${lname}$.$prop$get${declUname}={$crtmm$:function(){return{mod:$CCMM$,$t:`);
+                    emitRuntimeType(pdecl.type, name, idecl.typeParameters);
+                    writeJsLine(`,$cont:${name},pa:1029,d:['${modname}','${name}','$at','${declName}']};}};`);
+                    break;
+                }
+                case ts.SyntaxKind.MethodSignature: {
+                    const declName = (<ts.Identifier>decl.name).text;
+                    const declUname = declName[0].toUpperCase() + declName.substr(1);
+                    const mdecl = <ts.MethodSignature>decl;
+                    writeJs(`            ${lname}$.${declName}={$fml:1,$crtmm$:function(){return{mod:$CCMM$,$t:`);
+                    emitRuntimeType(mdecl.type, name, idecl.typeParameters);
+                    emitRuntimeParameters(mdecl.parameters, name, idecl.typeParameters);
+                    writeJsLine(`,$cont:${name},pa:5,d:['${modname}','${name}','$m','${declName}']};}};`);
+                    break;
+                }
+                case ts.SyntaxKind.IndexSignature:
+                case ts.SyntaxKind.CallSignature:
+                    break;
+                default:
+                    error(`unknown member kind ${decl.kind}`);
+                    break;
+                }
+            }
+            writeJs(`        })(${name}.$$.prototype);
+    }
+    return ${name};
+}
+ex$.$init$${name}=$init$${name};
+$init$${name}();
+`);
+            break;
+        }
         case ts.SyntaxKind.TypeAliasDeclaration: {
-            // does not appear in source code
+            const tadecl: ts.TypeAliasDeclaration = <ts.TypeAliasDeclaration>decl;
+            const name: string = tadecl.name.text;
+            writeJs(`function ${name}(){var $2=`);
+            emitRuntimeType(tadecl.type, name, tadecl.typeParameters); // note: JS backend emits calls to m$1.$mut/$mit$mtt to flatten union/intersection/tuple types – ignored here for simplicity’s sake
+            writeJsLine(`;$2.$crtmm$=function(){return{mod:$CCMM$,pa:1,d:['${modname}','${name}']};};return $2;}
+ex$.${name}=${name};`);
             break;
         }
         case ts.SyntaxKind.ModuleDeclaration: {
@@ -681,10 +931,17 @@ for (const sourceFile of sourceFiles) {
             break;
         }
         case ts.SyntaxKind.EnumDeclaration: {
+            writeJsLine(`function ${declName}(){m$1.throwexc(Exception("${modname}::${declName} has no default constructor."),'0:0-0:0','/dev/null');}
+function ${declName}$$c(syntaxKind$){
+    $init$${declName}();
+    if(syntaxKind$===undefined)syntaxKind$=new ${declName}.$$;
+    return syntaxKind$;
+}`);
             const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
             let value: number = -1;
             for (const member of (<ts.EnumDeclaration>decl).members) {
                 const memberName: string = (<ts.Identifier>member.name).text;
+                let expr: string;
                 if (isConst) {
                     const initializer: ts.Expression = member.initializer;
                     if (initializer) {
@@ -692,11 +949,42 @@ for (const sourceFile of sourceFiles) {
                     } else {
                         value++;
                     }
-                    writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${value};}`);
+                    expr = value.toString();
                 } else {
-                    writeJsLine(`ex$.${declName}$c_${memberName}=function(){return ${declName}.${memberName};}`);
+                    expr = `${declName}.${memberName}`;
                 }
+                writeJsLine(`function ${declName}$c_${memberName}(){return ${expr};}
+${declName}$c_${memberName}.$crtmm$=function(){return{mod:$CCMM$,$t:{t:${declName}},$cont:${declName},pa:1,d:['${modname}','${declName}','$cn','${memberName}']};}
+ex$.${declName}$c_${memberName}=${declName}$c_${memberName};
+${declName}.${declName}$c_${memberName}=${declName}$c_${memberName};`);
             }
+            writeJs(`${declName}.$crtmm$=function(){return{mod:$CCMM$,'super':{t:m$1.Basic},of:[`);
+            let comma: boolean = false;
+            for (const member of (<ts.EnumDeclaration>decl).members) {
+                if (comma) writeJs(',');
+                comma = true;
+                const memberName: string = (<ts.Identifier>member.name).text;
+                writeJs(`${declName}.${declName}$c_${memberName}`);
+            }
+            const l$name: string = declName[0].toLowerCase() + declName.substr(1) + '$';
+            writeJsLine(`],pa:1,d:['${modname}','${declName}']};};
+ex$.${declName}=${declName};
+function $init$${declName}(){
+    if(${declName}.$$===undefined){
+        m$1.initTypeProto(${declName},'${modname}::${declName}',m$1.Basic);
+        (function(${l$name}){`);
+            for (const member of (<ts.EnumDeclaration>decl).members) {
+                const memberName: string = (<ts.Identifier>member.name).text;
+                writeJsLine(`            m$1.atr$(${l$name},'${memberName}',function(){return ${declName}$c_${memberName}();},undefined,function(){return{mod:$CCMM$,$t:{t:${declName}},$cont:${declName},pa:1,d:['${modname}','${declName}','$cn','${memberName}']};});`);
+            }
+            writeJs(`
+        })(${declName}.$$.prototype);
+    }
+    return ${declName};
+}
+ex$.$init$${declName}=$init$${declName};
+$init$${declName}();
+`);
             break;
         }
         case ts.SyntaxKind.VariableDeclaration: {
