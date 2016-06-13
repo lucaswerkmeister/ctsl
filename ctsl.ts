@@ -20,8 +20,8 @@ const checker: ts.TypeChecker = program.getTypeChecker();
 const fd_js: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}.js`, "w");
 const fd_model: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}-model.js`, "w");
 
-function write(fd: number, text: string): void {
-    (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
+function write(fd: number, text: string): number {
+    return (<any>fs).writeSync(fd, text); // the DefinitelyTyped file is missing most of the writeSync overloads, so remove type info
 }
 
 function writeJs(text: string = ""): void {
@@ -32,8 +32,9 @@ function writeJsLine(line: string = ""): void {
     writeJs(line + "\n");
 }
 
+let modelPosition: number = 0;
 function writeModel(text: string = ""): void {
-    write(fd_model, text);
+    modelPosition += write(fd_model, text);
 }
 
 function error(line: string): void {
@@ -374,7 +375,7 @@ function findConstructor(cdecl: ts.ClassDeclaration): ts.ConstructorDeclaration 
             return <ts.ConstructorDeclaration>member;
 }
 
-function emitDeclaration(decl: ts.Declaration): void {
+function emitDeclaration(decl: ts.Declaration): boolean {
     switch (decl.kind) {
     case ts.SyntaxKind.FunctionDeclaration:
     case ts.SyntaxKind.MethodDeclaration:
@@ -431,21 +432,33 @@ function emitDeclaration(decl: ts.Declaration): void {
             writeModel(`,$at:{`);
             let comma: boolean = false;
             for (const decl of at) {
-                if (comma) writeModel(",");
-                comma = true;
-                emitDeclaration(decl);
+                if (emitDeclaration(decl)) {
+                    writeModel(',');
+                    comma = true;
+                }
             }
-            writeModel('}');
+            if (comma) {
+                // write '}' overwriting the last comma
+                (<any>fs).writeSync(fd_model, '}', modelPosition - 1);
+            } else {
+                writeModel('}');
+            }
         }
         if (m.length > 0) {
             writeModel(`,$m:{`);
             let comma: boolean = false;
             for (const decl of m) {
-                if (comma) writeModel(",");
-                comma = true;
-                emitDeclaration(decl);
+                if (emitDeclaration(decl)) {
+                    writeModel(',');
+                    comma = true;
+                }
             }
-            writeModel('}');
+            if (comma) {
+                // write '}' overwriting the last comma
+                (<any>fs).writeSync(fd_model, '}', modelPosition - 1);
+            } else {
+                writeModel('}');
+            }
         }
         emitTypeParameters(cdecl.typeParameters);
         writeModel(`,nm:"${name}"`);
@@ -492,21 +505,33 @@ function emitDeclaration(decl: ts.Declaration): void {
             writeModel(`,$at:{`);
             let comma: boolean = false;
             for (const decl of at) {
-                if (comma) writeModel(",");
-                comma = true;
-                emitDeclaration(decl);
+                if (emitDeclaration(decl)) {
+                    writeModel(',');
+                    comma = true;
+                }
             }
-            writeModel('}');
+            if (comma) {
+                // write '}' overwriting the last comma
+                (<any>fs).writeSync(fd_model, '}', modelPosition - 1);
+            } else {
+                writeModel('}');
+            }
         }
         if (m.length > 0) {
             writeModel(`,$m:{`);
             let comma: boolean = false;
             for (const decl of m) {
-                if (comma) writeModel(",");
-                comma = true;
-                emitDeclaration(decl);
+                if (emitDeclaration(decl)) {
+                    writeModel(',');
+                    comma = true;
+                }
             }
-            writeModel('}');
+            if (comma) {
+                // write '}' overwriting the last comma
+                (<any>fs).writeSync(fd_model, '}', modelPosition - 1);
+            } else {
+                writeModel('}');
+            }
         }
         emitTypeParameters(idecl.typeParameters);
         writeModel(`,nm:"${name}"}`);
@@ -559,19 +584,18 @@ function emitDeclaration(decl: ts.Declaration): void {
     }
     case ts.SyntaxKind.ModuleDeclaration: {
         // ignore for now
-        const dummyIndex = (Math.random() * 1024) | 0;
-        writeModel(`dummy${dummyIndex}:{$t:{md:"$",pk:"$",nm:"Null"},mt:"a",nm:"dummy${dummyIndex}"}`);
-        break;
+        return false;
     }
     default: {
         error("unknown declaration kind " + decl.kind);
-        break;
+        return false;
     }
     }
+    return true;
 }
 
 writeModel(`(function(define) { define(function(require, ex$, module) {
-ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1`);
+ex$.$CCMM$={"$mod-version":"${modver}","$mod-deps":["ceylon.language\/${langver}"],${modname}:{"$pkg-pa":1,`);
 
 let names: Array<string> = [];
 let namespace: string = "";
@@ -590,14 +614,14 @@ for (const sourceFile of sourceFiles) {
     
     for (const declName in locals) {
         if (names.indexOf(declName) >= 0) continue;
-        writeModel(",");
         const decl = locals[declName];
-        emitDeclaration(decl.declarations[0]);
+        if (emitDeclaration(decl.declarations[0]))
+            writeModel(",");
         names.push(declName);
     }
 }
 
-writeModel(',Date:{pa:1,mt:"i",nm:"Date"}');
+writeModel('Date:{pa:1,mt:"i",nm:"Date"}');
 writeModel(`},"$mod-bin":"9.1","$mod-name":"${modname}"};
 });
 }(typeof define==='function' && define.amd ? define : function (factory) {
