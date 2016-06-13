@@ -563,6 +563,10 @@ function emitDeclaration(decl: ts.Declaration): boolean {
     case ts.SyntaxKind.PropertySignature:
     case ts.SyntaxKind.VariableDeclaration: {
         const pdecl = <ts.PropertySignature>decl;
+        if (pdecl.questionToken) {
+            // discard optional members for now
+            return false;
+        }
         const name = (<ts.Identifier>pdecl.name).text;
         writeModel(`${name}:{$t:`);
         emitType(pdecl.type);
