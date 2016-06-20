@@ -945,7 +945,25 @@ function ${declName}$$c(syntaxKind$){
                 if (isConst) {
                     const initializer: ts.Expression = member.initializer;
                     if (initializer) {
-                        value = parseInt((<ts.LiteralExpression>initializer).text);
+                        switch (initializer.kind) {
+                        case ts.SyntaxKind.NumericLiteral:
+                            value = parseInt((<ts.LiteralExpression>initializer).text);
+                            break;
+                        case ts.SyntaxKind.BinaryExpression:
+                            const bexp: ts.BinaryExpression = <ts.BinaryExpression>initializer;
+                            if (bexp.operatorToken.kind == ts.SyntaxKind.LessThanLessThanToken
+                                && bexp.left.kind == ts.SyntaxKind.NumericLiteral
+                                && bexp.right.kind == ts.SyntaxKind.NumericLiteral) {
+                                value = parseInt((<ts.LiteralExpression>bexp.left).text) << parseInt((<ts.LiteralExpression>bexp.right).text);
+                            } else {
+                                error(`unknown binary expression in enum initializer`);
+                                value = NaN;
+                            }
+                            break;
+                        default:
+                            error(`unknown enum initializer kind ${initializer.kind}`);
+                            break;
+                        }
                     } else {
                         value++;
                     }
