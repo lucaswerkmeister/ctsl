@@ -84,6 +84,12 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"Anything"}');
         break;
     }
+    case ts.SyntaxKind.NullKeyword:
+    case ts.SyntaxKind.UndefinedKeyword: {
+        // map to Null
+        writeModel('{md:"$",pk:"$",nm:"Null"}');
+        break;
+    }
     case ts.SyntaxKind.ParenthesizedType: {
         emitType((<ts.ParenthesizedTypeNode>type).type);
         break;
