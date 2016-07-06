@@ -67,9 +67,16 @@ function invert(b: boolean): boolean {
 function numberOrString(): number|string {
     return "";
 }
-class DefaultConstructor {}
+class DefaultConstructor {
+    equals(that): boolean {
+        return that instanceof DefaultConstructor;
+    }
+}
 class ExplicitDefaultConstructor {
     constructor() {}
+    equals(that): boolean {
+        return that instanceof ExplicitDefaultConstructor;
+    }
 }
 class HTMLMediaElement {
     canPlayType(mediaType: string): "probably" | "maybe" | "" {
