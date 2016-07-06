@@ -581,7 +581,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
         const constdecl = findConstructor(cdecl);
         if (constdecl)
             emitParameters(constdecl.parameters, false);
-        writeModel(`,mt:"c"`);
+        writeModel(`,mt:"c",dyn:1`);
         const at: Array<ts.PropertyDeclaration> = [];
         const m: Array<ts.MethodDeclaration> = [];
         let indexSignature: ts.IndexSignatureDeclaration = null;
@@ -641,7 +641,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
         emitTypeParameters(cdecl.typeParameters);
         writeModel(`,nm:"${name}"`);
         if (constdecl && constdecl.parameters.length > 0) {
-            writeModel(',$cn:{$def:{pa:1,$new:true');
+            writeModel(',$cn:{$def:{pa:1,dyn:1');
             emitParameters(constdecl.parameters, false);
             writeModel('}}');
         }
