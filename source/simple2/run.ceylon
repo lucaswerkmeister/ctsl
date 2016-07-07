@@ -180,6 +180,18 @@ shared void explicitDefaultConstructor() {
 }
 
 test
+shared void lowercaseKlass() {
+    assertEquals {
+        expected = \IlowercaseClass();
+        actual = \IlowercaseClass();
+    };
+    assertEquals {
+        expected = "s";
+        actual = \IlowercaseClass().s;
+    };
+}
+
+test
 ignore ("compile-time only test")
 suppressWarnings ("unusedDeclaration")
 shared void stringLiteralType() {

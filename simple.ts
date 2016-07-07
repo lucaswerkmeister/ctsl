@@ -78,6 +78,12 @@ class ExplicitDefaultConstructor {
         return that instanceof ExplicitDefaultConstructor;
     }
 }
+class lowercaseClass {
+    s: string = "s";
+    equals(that): boolean {
+        return that instanceof lowercaseClass;
+    }
+}
 class HTMLMediaElement {
     canPlayType(mediaType: string): "probably" | "maybe" | "" {
         return "";
