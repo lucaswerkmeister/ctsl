@@ -1012,7 +1012,7 @@ $init$${declName}();
             break;
         }
         case ts.SyntaxKind.VariableDeclaration: {
-            writeJsLine(`ex$.${declName}=function(){return ${declName};};`);
+            writeJsLine(`ex$.${declName}=${declName};`);
             break;
         }
         default: {
