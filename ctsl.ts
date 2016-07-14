@@ -565,7 +565,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
         let pa: number = 1; // shared
         if (decl.kind == ts.SyntaxKind.MethodSignature)
             pa |= 4; // formal
-        writeModel(`,pa:${pa}`);
+        writeModel(`,pa:${pa},dyn:1`);
         emitParameters(fdecl.parameters, true);
         emitTypeParameters(fdecl.typeParameters);
         if (fdecl.type && fdecl.type.kind == ts.SyntaxKind.VoidKeyword) {
@@ -748,7 +748,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
         }
         writeModel(`${name}:{$t:`);
         emitType(pdecl.type);
-        writeModel(`,pa:1,mt:"a",nm:"${name}"}`);
+        writeModel(`,pa:1,dyn:1,mt:"a",nm:"${name}"}`);
         break;
     }
     case ts.SyntaxKind.IndexSignature: {
