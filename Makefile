@@ -38,7 +38,7 @@ clean:
 	$(RM) $(CTSL_JSFILE) $(MODULE_JSFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE) $(MODULE_MODELFILE).sha1
 	$(TSJAKE) clean
 
-install: $(MODULE_JSFILE) $(MODULE_MODELFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE).sha1 TypeScript/lib/lib.core.d.ts
+install: $(MODULE_JSFILE) $(MODULE_MODELFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE).sha1 TypeScript/lib/lib.es5.d.ts
 	mkdir -p ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)
 	cp -r $^ ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)
-	mv ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)/lib.core.d.ts ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)/lib.d.ts
+	mv ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)/lib.es5.d.ts ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)/lib.d.ts
