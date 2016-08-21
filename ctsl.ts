@@ -55,6 +55,16 @@ function isTypeParameter(typeName: string): boolean {
         typeName.length === 2 && typeName[0].toUpperCase() === typeName[0] && parseInt(typeName[1]) >= 0;
 }
 
+/*
+ * A few types in tsc are problematic, so we just override them here.
+ */
+function replaceType(typeName: string): string {
+    switch (typeName) {
+    case 'PropertyName': return 'Identifier';
+    default: return typeName;
+    }
+}
+
 function emitType(type: ts.TypeNode): void {
     if (!type) type = <ts.TypeNode>{ kind: ts.SyntaxKind.AnyKeyword };
     switch (type.kind) {
@@ -97,7 +107,7 @@ function emitType(type: ts.TypeNode): void {
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
-        const typeName: string = (<ts.Identifier>ref.typeName).text;
+        const typeName: string = replaceType((<ts.Identifier>ref.typeName).text);
         writeModel("{");
         if (ref.typeArguments && ref.typeArguments.length > 0) {
             writeModel('ta:{');
@@ -245,7 +255,7 @@ function emitRuntimeType(type: ts.TypeNode, containerName: string, containerType
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
-        const typeName: string = (<ts.Identifier>ref.typeName).text;
+        const typeName: string = replaceType((<ts.Identifier>ref.typeName).text);
         writeJs("{");
         if (ref.typeArguments && ref.typeArguments.length > 0) {
             writeJs('a:{');
