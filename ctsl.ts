@@ -6,14 +6,17 @@
 import * as fs from "fs";
 
 const langver: string = "1.2.3";
-const dirname: string = "TypeScript/src/compiler/";
-const modname: string = "tsc";
-const units: string[] = ["binder", "checker", "commandLineParser", "core", "declarationEmitter", "diagnosticInformationMap.generated", "emitter", "parser", "program", "scanner", "sourcemap", "sys", "types", "utilities"];
-const modver: string = "1.0.0";
+const args: string[] = process.argv.slice(2);
+const modname: string = args[0] || "tsc";
+const modver: string = args[1] || "1.0.0";
+const filenames: string[] = args.slice(2);
+if (filenames.length == 0) {
+    for (const unit of ["binder", "checker", "commandLineParser", "core", "declarationEmitter", "diagnosticInformationMap.generated", "emitter", "parser", "program", "scanner", "sourcemap", "sys", "types", "utilities"]) {
+        filenames.push(`TypeScript/src/compiler/${unit}.ts`);
+    }
+}
 const options: ts.CompilerOptions = {};
 const host: ts.CompilerHost = ts.createCompilerHost(options);
-const filenames: string[] = [];
-for (const unit of units) { filenames.push(`${dirname}${unit}.ts`); }
 const program: ts.Program = ts.createProgram(filenames, options, host);
 const sourceFiles: ts.SourceFile[] = program.getSourceFiles();
 const checker: ts.TypeChecker = program.getTypeChecker();

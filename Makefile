@@ -4,16 +4,21 @@ NODE   := node
 
 CTSL_TSFILE := ctsl.ts
 CTSL_JSFILE := built/ctsl.js
+CTSL_STANDALONEFILE := ctsl.js
 
-MODULE_NAME       := tsc
-MODULE_VERSION    := 1.0.0
-MODULE_TSUNITS    := binder checker commandLineParser core declarationEmitter diagnosticInformationMap.generated emitter parser program scanner sourcemap sys types utilities
-MODULE_TSFILES    := $(addsuffix .ts,$(addprefix TypeScript/src/compiler/,$(MODULE_TSUNITS)))
-MODULE_JSFILE     := modules/$(MODULE_NAME)/$(MODULE_VERSION)/$(MODULE_NAME)-$(MODULE_VERSION).js
-MODULE_MODELFILE  := modules/$(MODULE_NAME)/$(MODULE_VERSION)/$(MODULE_NAME)-$(MODULE_VERSION)-model.js
+TSC_MODULE_NAME       := tsc
+TSC_MODULE_VERSION    := 1.0.0
+TSC_MODULE_TSUNITS    := binder checker commandLineParser core declarationEmitter diagnosticInformationMap.generated emitter parser program scanner sourcemap sys types utilities
+TSC_MODULE_TSFILES    := $(addsuffix .ts,$(addprefix TypeScript/src/compiler/,$(MODULE_TSUNITS)))
+TSC_MODULE_JSFILE     := modules/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)/$(TSC_MODULE_NAME)-$(TSC_MODULE_VERSION).js
+TSC_MODULE_MODELFILE  := modules/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)/$(TSC_MODULE_NAME)-$(TSC_MODULE_VERSION)-model.js
 
-TESTMODULE_NAME    := simple2
-TESTMODULE_VERSION := 1.0.0
+TEST_MODULE_NAME       := simple
+TEST_MODULE_VERSION    := 1.0.0
+TEST_MODULE_TSFILES    := simple.ts
+TEST_MODULE_JSFILE     := modules/$(TEST_MODULE_NAME)/$(TEST_MODULE_VERSION)/$(TEST_MODULE_NAME)-$(TEST_MODULE_VERSION).js
+TEST_MODULE_MODELFILE  := modules/$(TEST_MODULE_NAME)/$(TEST_MODULE_VERSION)/$(TEST_MODULE_NAME)-$(TEST_MODULE_VERSION)-model.js
+TEST_CMODULE_NAME      := simple2
 
 .PHONY: all test clean install
 
@@ -25,20 +30,26 @@ TypeScript/built/local/typescript.js TypeScript/built/local/tsc.js:
 $(CTSL_JSFILE): TypeScript/built/local/tsc.js $(CTSL_TSFILE)
 	$(NODE) $<
 
-$(MODULE_JSFILE) $(MODULE_MODELFILE): TypeScript/built/local/typescript.js $(CTSL_JSFILE) $(MODULE_TSFILES)
-	cat TypeScript/built/local/typescript.js $(CTSL_JSFILE) | $(NODE)
+$(CTSL_STANDALONEFILE): TypeScript/built/local/typescript.js $(CTSL_JSFILE)
+	cat $^ >| $@
+
+$(TSC_MODULE_JSFILE) $(TSC_MODULE_MODELFILE): $(CTSL_STANDALONEFILE) $(TSC_MODULE_TSFILES)
+	$(NODE) $< $(TSC_MODULE_NAME) $(TSC_MODULE_VERSION) $(TSC_MODULE_TSFILES)
+
+$(TEST_MODULE_JSFILE) $(TEST_MODULE_MODELFILE): $(CTSL_STANDALONEFILE) $(TEST_MODULE_TSFILES)
+	$(NODE) $< $(TEST_MODULE_NAME) $(TEST_MODULE_VERSION) $(TEST_MODULE_TSFILES)
 
 %.sha1: %
 	printf "%s" "$$(sha1sum $^ | cut -d' ' -f1)" > $@
 
-test: $(MODULE_JSFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE) $(MODULE_MODELFILE).sha1
-	ceylon compile-js,test-js $(TESTMODULE_NAME)
+test: $(TEST_MODULE_JSFILE) $(TEST_MODULE_MODELFILE) $(TEST_MODULE_JSFILE).sha1 $(TEST_MODULE_MODELFILE).sha1
+	ceylon compile-js,test-js $(TEST_CMODULE_NAME)
 
 clean:
-	$(RM) $(CTSL_JSFILE) $(MODULE_JSFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE) $(MODULE_MODELFILE).sha1
+	$(RM) $(CTSL_JSFILE) $(TSC_MODULE_JSFILE) $(TSC_MODULE_JSFILE).sha1 $(TSC_MODULE_MODELFILE) $(TSC_MODULE_MODELFILE).sha1 $(TEST_MODULE_JSFILE) $(TEST_MODULE_MODELFILE) $(TEST_MODULE_JSFILE).sha1 $(TEST_MODULE_MODELFILE).sha1
 	$(TSJAKE) clean
 
-install: $(MODULE_JSFILE) $(MODULE_MODELFILE) $(MODULE_JSFILE).sha1 $(MODULE_MODELFILE).sha1 TypeScript/lib/lib.es5.d.ts
-	mkdir -p ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)
-	cp -r $^ ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)
-	mv ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)/lib.es5.d.ts ~/.ceylon/repo/$(MODULE_NAME)/$(MODULE_VERSION)/lib.d.ts
+install: $(TSC_MODULE_JSFILE) $(TSC_MODULE_MODELFILE) $(TSC_MODULE_JSFILE).sha1 $(TSC_MODULE_MODELFILE).sha1 TypeScript/lib/lib.es5.d.ts
+	mkdir -p ~/.ceylon/repo/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)
+	cp -r $^ ~/.ceylon/repo/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)
+	mv ~/.ceylon/repo/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)/lib.es5.d.ts ~/.ceylon/repo/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)/lib.d.ts
