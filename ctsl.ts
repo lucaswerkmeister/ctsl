@@ -5,6 +5,14 @@
 
 import * as fs from "fs";
 
+function dirExists(dir: string): boolean {
+    try {
+        return fs.statSync(dir).isDirectory();
+    } catch (e) {
+        return false;
+    }
+}
+
 const langver: string = "1.2.3";
 const args: string[] = process.argv.slice(2);
 const modname: string = args[0] || "tsc";
@@ -20,6 +28,9 @@ const host: ts.CompilerHost = ts.createCompilerHost(options);
 const program: ts.Program = ts.createProgram(filenames, options, host);
 const sourceFiles: ts.SourceFile[] = program.getSourceFiles();
 const checker: ts.TypeChecker = program.getTypeChecker();
+for (const dir of ["modules", `modules/${modname}`, `modules/${modname}/${modver}`])
+    if (!dirExists(dir))
+        fs.mkdirSync(dir);
 const fd_js: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}.js`, "w");
 const fd_model: number = fs.openSync(`modules/${modname}/${modver}/${modname}-${modver}-model.js`, "w");
 
