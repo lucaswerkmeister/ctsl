@@ -79,6 +79,44 @@ function replaceType(typeName: string): string {
     }
 }
 
+function initEnumMembers(decl: ts.EnumDeclaration): void {
+    if ("enumValue" in decl.members[0]) return;
+    const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
+    let value: number = -1;
+    for (const member of decl.members) {
+        const memberName: string = (<ts.Identifier>member.name).text;
+        if (isConst) {
+            const initializer: ts.Expression = member.initializer;
+            if (initializer) {
+                switch (initializer.kind) {
+                case ts.SyntaxKind.NumericLiteral:
+                    value = parseInt((<ts.LiteralExpression>initializer).text);
+                    break;
+                case ts.SyntaxKind.BinaryExpression:
+                    const bexp: ts.BinaryExpression = <ts.BinaryExpression>initializer;
+                    if (bexp.operatorToken.kind == ts.SyntaxKind.LessThanLessThanToken
+                        && bexp.left.kind == ts.SyntaxKind.NumericLiteral
+                        && bexp.right.kind == ts.SyntaxKind.NumericLiteral) {
+                        value = parseInt((<ts.LiteralExpression>bexp.left).text) << parseInt((<ts.LiteralExpression>bexp.right).text);
+                    } else {
+                        error(`unknown binary expression in enum initializer`);
+                        value = NaN;
+                    }
+                    break;
+                default:
+                    error(`unknown enum initializer kind ${initializer.kind}`);
+                    break;
+                }
+            } else {
+                value++;
+            }
+            (<any>member).enumValue = value.toString();
+        } else {
+            (<any>member).enumValue = memberName;
+        }
+    }
+}
+
 function emitType(type: ts.TypeNode): void {
     if (!type) type = <ts.TypeNode>{ kind: ts.SyntaxKind.AnyKeyword };
     switch (type.kind) {
@@ -967,40 +1005,12 @@ function ${declName}$$c(syntaxKind$){
     if(syntaxKind$===undefined)syntaxKind$=new ${declName}.$$;
     return syntaxKind$;
 }`);
-            const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
-            let value: number = -1;
-            for (const member of (<ts.EnumDeclaration>decl).members) {
+            const edecl = <ts.EnumDeclaration> decl;
+            initEnumMembers(edecl);
+            for (const member of edecl.members) {
                 const memberName: string = (<ts.Identifier>member.name).text;
-                let expr: string;
-                if (isConst) {
-                    const initializer: ts.Expression = member.initializer;
-                    if (initializer) {
-                        switch (initializer.kind) {
-                        case ts.SyntaxKind.NumericLiteral:
-                            value = parseInt((<ts.LiteralExpression>initializer).text);
-                            break;
-                        case ts.SyntaxKind.BinaryExpression:
-                            const bexp: ts.BinaryExpression = <ts.BinaryExpression>initializer;
-                            if (bexp.operatorToken.kind == ts.SyntaxKind.LessThanLessThanToken
-                                && bexp.left.kind == ts.SyntaxKind.NumericLiteral
-                                && bexp.right.kind == ts.SyntaxKind.NumericLiteral) {
-                                value = parseInt((<ts.LiteralExpression>bexp.left).text) << parseInt((<ts.LiteralExpression>bexp.right).text);
-                            } else {
-                                error(`unknown binary expression in enum initializer`);
-                                value = NaN;
-                            }
-                            break;
-                        default:
-                            error(`unknown enum initializer kind ${initializer.kind}`);
-                            break;
-                        }
-                    } else {
-                        value++;
-                    }
-                    expr = value.toString();
-                } else {
-                    expr = `${declName}.${memberName}`;
-                }
+                const enumValue: string = (<any>member).enumValue;
+                let expr: string = enumValue.match(/[1-9][0-9]*|0/) ? enumValue : `${declName}.${enumValue}`;
                 writeJsLine(`function ${declName}$c_${memberName}(){return ${expr};}
 ${declName}$c_${memberName}.$crtmm$=function(){return{mod:$CCMM$,$t:{t:${declName}},$cont:${declName},pa:1,d:['${modname}','${declName}','$cn','${memberName}']};}
 ex$.${declName}$c_${memberName}=${declName}$c_${memberName};
