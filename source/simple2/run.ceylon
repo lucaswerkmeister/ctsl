@@ -135,6 +135,10 @@ shared void enum() {
         expected = PeopleKind.kind;
         actual = peopleKind;
     };
+    assertNotEquals {
+        PeopleKind.kind;
+        PeopleKind.rude;
+    };
 }
 
 test
