@@ -781,6 +781,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
         const edecl = <ts.EnumDeclaration>decl;
         const name = edecl.name.text;
         writeModel(`${name}:{pa:1,super:{md:"$",pk:"$",nm:"Basic"},mt:"c",nm:"${name}",of:[`);
+        initEnumMembers(edecl);
         let comma: boolean = false;
         for (const member of edecl.members) {
             if (comma) writeModel(",");
@@ -794,7 +795,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
             if (comma) writeModel(",");
             comma = true;
             const mname: string = (<ts.Identifier>member.name).text;
-            writeModel(`${mname}:{pa:1,nm:"${mname}"}`);
+            writeModel(`${mname}:{pa:1,nm:"${mname}",$tsenum:"${(<any>member).enumValue}"}`);
         }
         writeModel(`}}`);
         break;
@@ -1006,30 +1007,14 @@ function ${declName}$$c(syntaxKind$){
     return syntaxKind$;
 }`);
             const edecl = <ts.EnumDeclaration> decl;
-            initEnumMembers(edecl);
-            for (const member of edecl.members) {
-                const memberName: string = (<ts.Identifier>member.name).text;
-                const enumValue: string = (<any>member).enumValue;
-                let expr: string = enumValue.match(/[1-9][0-9]*|0/) ? enumValue : `${declName}.${enumValue}`;
-                writeJsLine(`function ${declName}$c_${memberName}(){return ${expr};}
-${declName}$c_${memberName}.$crtmm$=function(){return{mod:$CCMM$,$t:{t:${declName}},$cont:${declName},pa:1,d:['${modname}','${declName}','$cn','${memberName}']};}
-ex$.${declName}$c_${memberName}=${declName}$c_${memberName};
-${declName}.${declName}$c_${memberName}=${declName}$c_${memberName};`);
-            }
-            writeJs(`${declName}.$crtmm$=function(){return{mod:$CCMM$,'super':{t:m$1.Basic},of:[`);
-            let comma: boolean = false;
-            for (const member of (<ts.EnumDeclaration>decl).members) {
-                if (comma) writeJs(',');
-                comma = true;
-                const memberName: string = (<ts.Identifier>member.name).text;
-                writeJs(`${declName}.${declName}$c_${memberName}`);
-            }
+            writeJs(`${declName}.$crtmm$=function(){return{mod:$CCMM$,'super':{t:m$1.Basic}`);
             const l$name: string = declName[0].toLowerCase() + declName.substr(1) + '$';
-            writeJsLine(`],pa:1,d:['${modname}','${declName}']};};
+            writeJsLine(`,pa:1,d:['${modname}','${declName}']};};
 ex$.${declName}=${declName};
 function $init$${declName}(){
     if(${declName}.$$===undefined){
         m$1.initTypeProto(${declName},'${modname}::${declName}',m$1.Basic);
+        ${declName}.$$.$tsenum = true;
         (function(${l$name}){`);
             for (const member of (<ts.EnumDeclaration>decl).members) {
                 const memberName: string = (<ts.Identifier>member.name).text;
