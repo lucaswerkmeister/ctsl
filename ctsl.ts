@@ -1016,7 +1016,7 @@ function $init$${declName}(){
         m$1.initTypeProto(${declName},'${modname}::${declName}',m$1.Basic);
         ${declName}.$$.$tsenum = true;
         (function(${l$name}){`);
-            for (const member of (<ts.EnumDeclaration>decl).members) {
+            for (const member of edecl.members) {
                 const memberName: string = (<ts.Identifier>member.name).text;
                 writeJsLine(`            m$1.atr$(${l$name},'${memberName}',function(){return ${declName}$c_${memberName}();},undefined,function(){return{mod:$CCMM$,$t:{t:${declName}},$cont:${declName},pa:1,d:['${modname}','${declName}','$cn','${memberName}']};});`);
             }
