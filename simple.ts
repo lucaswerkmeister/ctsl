@@ -143,3 +143,7 @@ function makeAIdentityFunction(): StringTransformation {
     return result;
 }
 const stringGetter: () => string = () => "";
+enum NonConstEnum {
+    one = 1,
+    two = 2
+}

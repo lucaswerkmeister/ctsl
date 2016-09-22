@@ -349,3 +349,23 @@ shared void callableNoParams() {
         actual = stringGetter();
     };
 }
+
+test
+shared void nonConstEnum() {
+    NonConstEnum zwei = NonConstEnum.two;
+    switch (zwei)
+    case (NonConstEnum.one) {
+        fail("Wrong enum value");
+    }
+    case (NonConstEnum.two) {
+        // ok
+    }
+    assertEquals {
+        expected = NonConstEnum.two;
+        actual = zwei;
+    };
+    assertNotEquals {
+        NonConstEnum.one;
+        NonConstEnum.two;
+    };
+}
