@@ -369,3 +369,15 @@ shared void nonConstEnum() {
         NonConstEnum.two;
     };
 }
+
+test
+shared void dynamicEnum() {
+    PeopleKind k;
+    dynamic { k = eval("(function(x){return x})")(PeopleKind.kind); }
+    assertEquals {
+        expected = PeopleKind.kind;
+        actual = k;
+    };
+    assertTrue(k is PeopleKind);
+    dynamic { assertTrue(eval("(function(x){return x})")(PeopleKind.kind) is PeopleKind); }
+}
