@@ -1,5 +1,4 @@
-# Jake apparently ignores -C when looking for the Jakefile, so it needs -f
-TSJAKE := jake -C TypeScript -f TypeScript/Jakefile.js
+TSGULP := gulp --cwd TypeScript
 NODE   := node
 
 CTSL_TSFILE := ctsl.ts
@@ -25,7 +24,7 @@ TEST_CMODULE_NAME      := simple2
 all: install
 
 TypeScript/built/local/typescript.js TypeScript/built/local/tsc.js:
-	$(TSJAKE) local
+	$(TSGULP) tsc
 
 $(CTSL_JSFILE): TypeScript/built/local/tsc.js $(CTSL_TSFILE)
 	$(NODE) $<
@@ -47,7 +46,7 @@ test: $(TEST_MODULE_JSFILE) $(TEST_MODULE_MODELFILE) $(TEST_MODULE_JSFILE).sha1 
 
 clean:
 	$(RM) $(CTSL_JSFILE) $(TSC_MODULE_JSFILE) $(TSC_MODULE_JSFILE).sha1 $(TSC_MODULE_MODELFILE) $(TSC_MODULE_MODELFILE).sha1 $(TEST_MODULE_JSFILE) $(TEST_MODULE_MODELFILE) $(TEST_MODULE_JSFILE).sha1 $(TEST_MODULE_MODELFILE).sha1
-	$(TSJAKE) clean
+	$(TSGULP) clean
 
 install: $(TSC_MODULE_JSFILE) $(TSC_MODULE_MODELFILE) $(TSC_MODULE_JSFILE).sha1 $(TSC_MODULE_MODELFILE).sha1 TypeScript/lib/lib.es5.d.ts
 	mkdir -p ~/.ceylon/repo/$(TSC_MODULE_NAME)/$(TSC_MODULE_VERSION)

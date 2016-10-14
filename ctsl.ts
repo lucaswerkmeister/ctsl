@@ -136,8 +136,8 @@ function emitType(type: ts.TypeNode): void {
         writeModel('{md:"$",pk:"$",nm:"Anything"}');
         break;
     }
-    case ts.SyntaxKind.StringLiteralType: {
-        // map all string literal types to String for now
+    case ts.SyntaxKind.LiteralType: {
+        // map all string literal types to String for now and ignore the existence of other literal types (number, boolean)
         writeModel('{md:"$",pk:"$",nm:"String"}');
         break;
     }
@@ -159,7 +159,8 @@ function emitType(type: ts.TypeNode): void {
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
-        const typeName: string = replaceType((<ts.Identifier>ref.typeName).text);
+        let typeName: string = replaceType((<ts.Identifier>ref.typeName).text);
+        if (typeName === "ReadonlyArray") typeName = "Array";
         writeModel("{");
         if (ref.typeArguments && ref.typeArguments.length > 0) {
             writeModel('ta:{');
@@ -290,8 +291,8 @@ function emitRuntimeType(type: ts.TypeNode, containerName: string, containerType
         writeJs('{t:m$1.Anything}');
         break;
     }
-    case ts.SyntaxKind.StringLiteralType: {
-        // map all string literal types to String for now
+    case ts.SyntaxKind.LiteralType: {
+        // map all string literal types to String for now and ignore the existence of other literal types (number, boolean)
         writeJs('{t:m$1.$_String}');
         break;
     }
@@ -307,7 +308,8 @@ function emitRuntimeType(type: ts.TypeNode, containerName: string, containerType
     case ts.SyntaxKind.TypeReference: {
         const ref = <ts.TypeReferenceNode>type;
         // TODO deal with qualified names
-        const typeName: string = replaceType((<ts.Identifier>ref.typeName).text);
+        let typeName: string = replaceType((<ts.Identifier>ref.typeName).text);
+        if (typeName === "ReadonlyArray") typeName = "Array";
         writeJs("{");
         if (ref.typeArguments && ref.typeArguments.length > 0) {
             writeJs('a:{');
