@@ -84,6 +84,10 @@ function discardedMember(decl: { questionToken?: ts.Node }, name: string): boole
         // discard optional members for now
         return true;
     }
+    if (name === 'resolvedProperties' || name === 'couldContainTypeParameters') {
+        // discard UnionOrIntersectionType members as well for now, the compiler doesn’t fill them in
+        return true;
+    }
     return false;
 }
 
