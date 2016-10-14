@@ -79,6 +79,14 @@ function replaceType(typeName: string): string {
     }
 }
 
+function discardedMember(decl: { questionToken?: ts.Node }, name: string): boolean {
+    if (decl.questionToken || name.indexOf('_') == 0) {
+        // discard optional members for now
+        return true;
+    }
+    return false;
+}
+
 function initEnumMembers(decl: ts.EnumDeclaration): void {
     if ("enumValue" in decl.members[0]) return;
     const isConst: boolean = decl.modifiers && decl.modifiers.some(modifier => modifier.kind == ts.SyntaxKind.ConstKeyword);
@@ -807,8 +815,7 @@ function emitDeclaration(decl: ts.Declaration): boolean {
     case ts.SyntaxKind.VariableDeclaration: {
         const pdecl = <ts.PropertySignature>decl;
         const name = (<ts.Identifier>pdecl.name).text;
-        if (pdecl.questionToken || name.indexOf('_') == 0) {
-            // discard optional members for now
+        if (discardedMember(pdecl, name)) {
             return false;
         }
         writeModel(`${name}:{$t:`);
@@ -927,8 +934,7 @@ ${name}.dynmem$=[`);
                 case ts.SyntaxKind.PropertySignature:
                 case ts.SyntaxKind.MethodSignature:
                     const declName = (<ts.Identifier>decl.name).text;
-                    if (decl.questionToken || declName.indexOf('_') == 0) {
-                        // discard optional members for now
+                    if (discardedMember(decl, declName)) {
                         break;
                     }
                     if (comma) writeJs(',');
