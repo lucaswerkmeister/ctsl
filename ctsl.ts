@@ -994,7 +994,15 @@ $init$${name}();
             writeJs(`function ${name}(){var $2=`);
             emitRuntimeType(tadecl.type, name, tadecl.typeParameters); // note: JS backend emits calls to m$1.$mut/$mit$mtt to flatten union/intersection/tuple types – ignored here for simplicity’s sake
             writeJsLine(`;$2.$crtmm$=function(){return{mod:$CCMM$,pa:1,d:['${modname}','${name}']};};return $2;}
-ex$.${name}=${name};`);
+ex$.${name}=${name};
+function $init$${name}(){
+    if(${name}.$$===undefined){
+        m$1.initTypeProtoI(${name},'${modname}::${name}');
+        console.error('WARNING: ${name} is now initialized, but probably not quite correctly. dre$$ might not work.');
+    }
+    return ${name};
+}
+ex$.$init$${name}=$init$${name};`);
             break;
         }
         case ts.SyntaxKind.ModuleDeclaration: {
