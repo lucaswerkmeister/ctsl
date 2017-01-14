@@ -13,7 +13,7 @@ function dirExists(dir: string): boolean {
     }
 }
 
-const langver: string = "1.3.1-SNAPSHOT";
+const langver: string = "1.3.2-SNAPSHOT";
 const args: string[] = process.argv.slice(2);
 const modname: string = args[0] || "tsc";
 const modver: string = args[1] || "1.0.0";
